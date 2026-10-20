@@ -127,11 +127,8 @@ tr:hover td{background:rgba(53,224,255,.03)}
 .tag.live{color:var(--good);border-color:rgba(94,242,160,.4)}
 .tag.soon{color:var(--elec);border-color:rgba(53,224,255,.4)}
 
-/* ---- mobile: dense tables get their own scroll surface, never clip data ---- */
+/* ---- mobile: the one table that has no scroll wrapper gets one ---- */
 @media(max-width:760px){
-  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-  th,td{white-space:nowrap}
-  th{padding:9px 10px}
-  td{padding:10px}
-  .num{font-size:12.5px}
+  table.tbl-s{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  table.tbl-s th,table.tbl-s td{white-space:nowrap}
 }
