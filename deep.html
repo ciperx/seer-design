@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seer — deep markets</title>
+<meta name="description" content="Seer deep markets: standing books with 30 to 540 day horizons, agent-underwritten depth and tranched LP capital.">
+<link rel="stylesheet" href="assets/ef.css">
+<style>
+.dhero{padding:clamp(38px,5.5vw,66px) 0 clamp(26px,3.5vw,40px);border-bottom:1px solid var(--line)}
+.dhero h1{font-size:clamp(32px,4.8vw,54px);max-width:20ch;margin:14px 0 0}
+.dhero .lede{margin-top:14px}
+.dhero .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden;margin-top:26px}
+.stats>div{padding:15px 18px;border-right:1px solid var(--line)}
+.stats>div:last-child{border-right:0}
+.stats .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer)}
+.stats .v{font-family:var(--mono);font-size:21px;letter-spacing:-.02em;margin-top:5px}
+.stats .d{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:3px}
+.sect{padding:clamp(30px,4.4vw,54px) 0;border-bottom:1px solid var(--line)}
+.secthead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.secthead h2{margin:0;font-size:clamp(19px,2.2vw,24px)}
+.secthead .r{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.06em}
+.depth svg{width:100%;height:auto;display:block;margin-top:6px}
+.depth{display:flex;flex-direction:column}
+.split{align-items:stretch}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:auto;border-top:1px solid var(--line);padding-top:9px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.exec label{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);margin:0 0 4px}
+.exec input{width:100%;background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;color:var(--ink);font-family:var(--mono);font-size:15px;padding:10px 11px;outline:0}
+.exec input:focus{border-color:var(--elec)}
+.side{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0 14px}
+.side button{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:8px;border-radius:8px;border:1px solid var(--line-2);background:transparent;color:var(--dim);cursor:pointer}
+.side button[aria-pressed="true"]{background:rgba(94,242,160,.14);border-color:rgba(94,242,160,.5);color:var(--good)}
+.side button.sell[aria-pressed="true"]{background:rgba(255,122,77,.14);border-color:rgba(255,122,77,.5);color:var(--warn)}
+.calc{border-top:1px solid var(--line);padding-top:10px;font-family:var(--mono);font-size:11.5px;margin-top:2px}
+.calc div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;color:var(--dim)}
+.calc div b{color:var(--ink);font-weight:500}
+.calc div b.hi{color:var(--volt)}
+.meter{margin-top:12px}
+.meter .lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer);margin-bottom:5px}
+.tblwrap{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:auto}
+.tblwrap table{min-width:820px}
+.tblwrap th.num,.tblwrap td.num{text-align:right}
+.mk{display:flex;flex-direction:column;gap:2px}
+.mk b{font-weight:600;color:var(--ink);font-size:13.5px}
+.mk i{font-family:var(--mono);font-size:10px;color:var(--dimmer);font-style:normal}
+.up{color:var(--good)}.dn{color:var(--warn)}
+.trcard .v2{font-family:var(--mono);font-size:27px;letter-spacing:-.03em;margin:8px 0 2px}
+.trcard .sub{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.06em}
+.trcard .bar{margin-top:14px}
+.trcard .mtx{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--dimmer);margin-top:7px}
+.note h3{font-size:14px}
+.note p{font-size:13px;margin:6px 0 0;color:#b6c2d0}
+@media(max-width:900px){.stats{grid-template-columns:1fr 1fr}.stats>div:nth-child(2n){border-right:0}}
+@media(max-width:620px){.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><a class="brand" href="index.html"><svg class="bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="#c8ff3c"/></svg><b>Seer</b><span>electric foundation</span></a><nav class="nav"><a href="index.html">Overview</a><a href="app.html">Explorer</a><a href="deep.html" aria-current="page">Deep</a><a href="futarchy.html">Futarchy</a><a href="opportunity.html">Opportunity</a><a href="risk.html">Risk</a></nav></header>
+
+<div class="dhero">
+  <span class="eyebrow">deep · long-horizon liquidity</span>
+  <h1>Depth that holds size.</h1>
+  <p class="lede">Deep markets carry a standing two-sided book for 30 to 540 days. Agent capital underwrites the spread; price moves only when the book is exhausted, not when a single order arrives.</p>
+  <div class="pills"><span class="pill"><span class="dot"></span>96 LP agents quoting</span><span class="pill">avg fill 1.9s</span><span class="pill">no funding rate</span></div>
+  <div class="stats">
+    <div><div class="k">deep liquidity</div><div class="v">$62.4M</div><div class="d">committed across 41 books</div></div>
+    <div><div class="k">median book depth</div><div class="v">4.1%</div><div class="d">of notional at ±1%</div></div>
+    <div><div class="k">avg horizon</div><div class="v">214d</div><div class="d">range 30–540d</div></div>
+    <div><div class="k">utilisation</div><div class="v">58.6%</div><div class="d">of underwritten capacity</div></div>
+  </div>
+</div>
+
+<section class="sect">
+  <div class="secthead"><h2>Standing book</h2><div class="r">ETH/USDC · cumulative depth · 5m refresh</div></div>
+  <div class="split">
+    <div class="card flat depth">
+      <div class="k">cumulative depth · % from mid</div>
+      <svg viewBox="0 0 660 250" role="img" aria-label="Cumulative bid and ask depth around mid price">
+        <g stroke="rgba(140,170,200,.12)" stroke-width="1">
+          <line x1="0" y1="40" x2="660" y2="40"/>
+          <line x1="0" y1="127" x2="660" y2="127"/>
+          <line x1="0" y1="214" x2="660" y2="214"/>
+        </g>
+        <path d="M330,214 L312,206 L294,196 L276,182 L258,168 L240,150 L222,138 L204,118 L186,104 L168,92 L150,74 L132,66 L114,52 L96,46 L78,40 L60,36 L42,32 L42,214 Z" fill="rgba(94,242,160,.13)" stroke="#5ef2a0" stroke-width="1.4"/>
+        <path d="M330,214 L348,202 L366,192 L384,180 L402,166 L420,152 L438,140 L456,128 L474,114 L492,104 L510,92 L528,84 L546,74 L564,68 L582,60 L600,54 L618,48 L618,214 Z" fill="rgba(255,122,77,.11)" stroke="#ff7a4d" stroke-width="1.4"/>
+        <line x1="330" y1="8" x2="330" y2="214" stroke="#c8ff3c" stroke-width="1" stroke-dasharray="3 5" opacity=".65"/>
+        <g font-family="monospace" font-size="9" fill="#55616e">
+          <text x="6" y="43">40M</text><text x="6" y="130">20M</text><text x="6" y="217">0</text>
+          <text x="42" y="236" text-anchor="middle">−2.0%</text>
+          <text x="190" y="236" text-anchor="middle">−1.0%</text>
+          <text x="330" y="236" text-anchor="middle" fill="#c8ff3c">mid 3,142.60</text>
+          <text x="470" y="236" text-anchor="middle">+1.0%</text>
+          <text x="618" y="236" text-anchor="middle">+2.0%</text>
+        </g>
+      </svg>
+      <div class="legend"><span><i style="background:#5ef2a0"></i>bid side $31.8M</span><span><i style="background:#ff7a4d"></i>ask side $30.6M</span><span>imbalance 51.0 / 49.0</span></div>
+    </div>
+
+    <div class="card flat exec">
+      <div class="k">execution model</div>
+      <div class="side">
+        <button id="bBuy" aria-pressed="true">Buy ETH</button>
+        <button id="bSell" class="sell" aria-pressed="false">Sell ETH</button>
+      </div>
+      <label for="notional">notional · USD</label>
+      <input id="notional" type="number" value="1000000" min="1000" step="50000">
+      <div class="calc" id="calcOut"></div>
+      <div class="meter">
+        <div class="lab"><span>book consumed</span><span id="usedLab">—</span></div>
+        <div class="bar"><i id="usedBar" style="width:0%"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sect">
+  <div class="secthead"><h2>Open deep markets</h2><div class="r">8 of 41 · sorted by book depth</div></div>
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Market</th><th>Horizon</th><th class="num">Mid</th><th class="num">Spread</th><th class="num">Book depth</th><th class="num">Utilisation</th><th class="num">LP APR</th></tr></thead>
+      <tbody>
+        <tr><td><div class="mk"><b>stETH/ETH peg · 180d</b><i>SEER-0x91cd…31b</i></div></td><td><span class="tag">180d</span></td><td class="num">94.6¢</td><td class="num">0.12¢</td><td class="num">$52.0M</td><td class="num">41%</td><td class="num up">3.2%</td></tr>
+        <tr><td><div class="mk"><b>ETH/USDC · 30d rolling</b><i>SEER-0x5e02…b7a</i></div></td><td><span class="tag live">30d</span></td><td class="num">63.4¢</td><td class="num">0.30¢</td><td class="num">$41.2M</td><td class="num">68%</td><td class="num up">4.1%</td></tr>
+        <tr><td><div class="mk"><b>ETH/USDC · 90d term</b><i>SEER-0x7c19…4e2</i></div></td><td><span class="tag">90d</span></td><td class="num">61.8¢</td><td class="num">0.55¢</td><td class="num">$28.6M</td><td class="num">54%</td><td class="num up">6.8%</td></tr>
+        <tr><td><div class="mk"><b>Protocol X solvency · 2027</b><i>SEER-0x44aa…7c2</i></div></td><td><span class="tag">438d</span></td><td class="num">88.2¢</td><td class="num">1.40¢</td><td class="num">$17.8M</td><td class="num">62%</td><td class="num up">9.1%</td></tr>
+        <tr><td><div class="mk"><b>Fed cuts before June</b><i>SEER-0x12c8…6ae</i></div></td><td><span class="tag">241d</span></td><td class="num">58.6¢</td><td class="num">0.45¢</td><td class="num">$12.4M</td><td class="num">57%</td><td class="num up">7.4%</td></tr>
+        <tr><td><div class="mk"><b>EigenLayer TVL · Mar 2027</b><i>SEER-0x9a75…2dc</i></div></td><td><span class="tag">121d</span></td><td class="num">61.2¢</td><td class="num">0.80¢</td><td class="num">$9.4M</td><td class="num">77%</td><td class="num up">11.4%</td></tr>
+        <tr><td><div class="mk"><b>Treasury T-bill rotation · Q2</b><i>SEER-0x33b9…4cc</i></div></td><td><span class="tag">168d</span></td><td class="num">52.3¢</td><td class="num">1.10¢</td><td class="num">$6.2M</td><td class="num">48%</td><td class="num up">12.6%</td></tr>
+        <tr><td><div class="mk"><b>Restaking slash event · perp</b><i>SEER-0xa1f4…e08</i></div></td><td><span class="tag soon">perp</span></td><td class="num">6.8¢</td><td class="num">0.90¢</td><td class="num">$3.1M</td><td class="num">83%</td><td class="num up">18.2%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small dim mono" style="margin:12px 0 0">Book depth = cumulative notional available within ±1% of mid. Utilisation = underwritten capital currently at risk.</p>
+</section>
+
+<section class="sect">
+  <div class="secthead"><h2>Capital stack</h2><div class="r">senior / mezzanine / junior · 62.4M committed</div></div>
+  <div class="grid g3">
+    <div class="card trcard">
+      <span class="k">senior tranche</span>
+      <div class="v2">4.2%</div>
+      <div class="sub">target yield · first claim on spread</div>
+      <div class="bar"><i style="width:71%"></i></div>
+      <div class="mtx"><span>$24.1M used</span><span>$34.0M cap</span></div>
+    </div>
+    <div class="card trcard">
+      <span class="k">mezzanine</span>
+      <div class="v2">9.8%</div>
+      <div class="sub">target yield · absorbs first 6% of loss</div>
+      <div class="bar"><i style="width:58%"></i></div>
+      <div class="mtx"><span>$10.7M used</span><span>$18.5M cap</span></div>
+    </div>
+    <div class="card trcard">
+      <span class="k">junior · first loss</span>
+      <div class="v2">21.4%</div>
+      <div class="sub">target yield · residual, marked daily</div>
+      <div class="bar"><i style="width:44%"></i></div>
+      <div class="mtx"><span>$4.4M used</span><span>$9.9M cap</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sect">
+  <div class="secthead"><h2>How the book stays deep</h2><div class="r">mechanism</div></div>
+  <div class="grid g3">
+    <div class="card flat note"><h3>Standing quotes, not auctions</h3><p>Agents post two-sided quotes against a shared risk limit. Orders cross the spread or rest; nothing clears in a batch, so size never waits for a counterparty.</p></div>
+    <div class="card flat note"><h3>Underwritten by tranches</h3><p>Spread income flows senior to junior. Junior capital is marked against realised inventory PnL each epoch, which prices the risk of holding the book honestly.</p></div>
+    <div class="card flat note"><h3>Resolved, not rolled</h3><p>At maturity the market settles on its named oracle and closes. No funding drift, no perpetual basis — the payoff is the question, paid once.</p></div>
+  </div>
+</section>
+
+<footer class="foot">Seer — the protocol beneath the applications · <a href="index.html">overview</a> · simulation interface, no funds at risk</footer>
+</div>
+
+<script>
+(function(){
+  var mid=3142.60, depth=62400000, buy=true;
+  var input=document.getElementById('notional'), out=document.getElementById('calcOut');
+  var bar=document.getElementById('usedBar'), lab=document.getElementById('usedLab');
+
+  function money(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+  function calc(){
+    var n=Math.max(0,parseFloat(input.value)||0);
+    var bps=8*Math.pow(n/250000,0.62);
+    if(!isFinite(bps)) bps=0;
+    var px=buy?mid*(1+bps/10000):mid*(1-bps/10000);
+    var allin=n*(1+(buy?bps:-bps)/10000);
+    var consumed=n/depth*100;
+    var html='';
+    html+='<div><span>mid</span><b>'+money(mid)+'</b></div>';
+    html+='<div><span>est. slippage</span><b class="hi">'+bps.toFixed(1)+' bps</b></div>';
+    html+='<div><span>effective price</span><b>'+money(px)+'</b></div>';
+    html+='<div><span>'+(buy?'all-in cost':'net proceeds')+'</span><b>'+money(allin)+'</b></div>';
+    html+='<div><span>settlement</span><b>instant · atomic</b></div>';
+    out.innerHTML=html;
+    bar.style.width=Math.min(100,consumed*8).toFixed(1)+'%';
+    lab.textContent=consumed.toFixed(2)+'% of $62.4M';
+  }
+
+  document.getElementById('bBuy').addEventListener('click',function(){buy=true;this.setAttribute('aria-pressed','true');document.getElementById('bSell').setAttribute('aria-pressed','false');calc();});
+  document.getElementById('bSell').addEventListener('click',function(){buy=false;this.setAttribute('aria-pressed','true');document.getElementById('bBuy').setAttribute('aria-pressed','false');calc();});
+  input.addEventListener('input',calc);
+  calc();
+})();
+</script>
+</body>
+</html>
