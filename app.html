@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seer — market explorer</title>
+<meta name="description" content="Every Seer market in one book: binary, deep, futarchy, opportunity and risk venues with live implied probability, depth and liquidity.">
+<link rel="stylesheet" href="assets/ef.css">
+<style>
+.apphead{padding:34px 0 24px;border-bottom:1px solid var(--line);display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap}
+.apphead h1{font-size:clamp(26px,3.6vw,42px);margin:10px 0 0}
+.apphead .lede{font-size:15px;margin:10px 0 0;max-width:54ch}
+.apphead .right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden;margin-top:24px}
+.stats>div{padding:15px 18px;border-right:1px solid var(--line)}
+.stats>div:last-child{border-right:0}
+.stats .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer)}
+.stats .v{font-family:var(--mono);font-size:21px;letter-spacing:-.02em;margin-top:5px}
+.stats .d{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:3px}
+.filters{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.search{flex:1 1 300px;display:flex;align-items:center;gap:9px;border:1px solid var(--line-2);border-radius:10px;background:var(--panel);padding:9px 12px}
+.search input{background:none;border:0;outline:0;color:var(--ink);font-family:var(--mono);font-size:12.5px;width:100%}
+.search input::placeholder{color:var(--dimmer)}
+.search svg{width:14px;height:14px;flex:none;stroke:var(--dimmer);fill:none;stroke-width:1.7}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line-2);background:transparent;border-radius:999px;padding:7px 12px;cursor:pointer}
+.chip:hover{color:var(--ink);border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--elec);border-color:var(--elec);color:#04141a;font-weight:700}
+.tblwrap{margin-top:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:auto}
+.tblwrap table{min-width:840px}
+.tblwrap tbody tr{cursor:pointer}
+.tblwrap tr[aria-selected="true"] td{background:rgba(200,255,60,.055)}
+.tblwrap tr[aria-selected="true"] td:first-child{box-shadow:inset 2px 0 0 var(--volt)}
+.mk{display:flex;flex-direction:column;gap:2px}
+.mk b{font-weight:600;color:var(--ink);font-size:13.5px}
+.mk i{font-family:var(--mono);font-size:10px;color:var(--dimmer);font-style:normal;letter-spacing:.04em}
+.up{color:var(--good)}.dn{color:var(--warn)}
+.srt{color:var(--volt);font-size:9px;margin-left:2px}
+.detail{padding:clamp(28px,4vw,48px) 0;border-bottom:1px solid var(--line)}
+.dhead{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px}
+.dhead h2{margin:8px 0 8px;font-size:clamp(20px,2.4vw,27px)}
+.dmeta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dpx{margin-left:auto;text-align:right}
+.dpx .p{font-family:var(--mono);font-size:30px;letter-spacing:-.03em;line-height:1.1}
+.dgrid{display:grid;grid-template-columns:1.4fr .95fr .9fr;gap:14px;align-items:start}
+.chart svg{width:100%;height:150px;display:block;margin-top:8px}
+.card .k+.chart{margin-top:4px}
+.rowline{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:10px;border-top:1px solid var(--line);padding-top:9px}
+.book{display:flex;flex-direction:column;gap:2px;margin-top:10px}
+.lv{position:relative;display:flex;justify-content:space-between;padding:4px 9px;font-family:var(--mono);font-size:11px;isolation:isolate;color:#c8d3e0}
+.lv i{position:absolute;inset:0 auto 0 0;z-index:-1;border-radius:2px}
+.lv.a i{background:rgba(255,122,77,.16)}.lv.b i{background:rgba(94,242,160,.14)}
+.lv.a .px{color:#f0a58c}.lv.b .px{color:#8be7bb}
+.mid{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);border-block:1px solid var(--line);padding:6px 9px;margin:5px 0}
+.trade label{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);margin:0 0 4px}
+.trade input{width:100%;background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;color:var(--ink);font-family:var(--mono);font-size:13px;padding:9px 10px;outline:0;margin-bottom:10px}
+.trade input:focus{border-color:var(--elec)}
+.side{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0 12px}
+.side button{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:8px;border-radius:8px;border:1px solid var(--line-2);background:transparent;color:var(--dim);cursor:pointer}
+.side button[aria-pressed="true"]{background:rgba(94,242,160,.14);border-color:rgba(94,242,160,.5);color:var(--good)}
+.side button.sell[aria-pressed="true"]{background:rgba(255,122,77,.14);border-color:rgba(255,122,77,.5);color:var(--warn)}
+.calc{border-top:1px solid var(--line);padding-top:10px;font-family:var(--mono);font-size:11.5px}
+.calc div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;color:var(--dim)}
+.calc div b{color:var(--ink);font-weight:500}
+.tbl-s{width:100%;font-size:12px;margin-top:6px}
+.tbl-s td,.tbl-s th{padding:7px 8px}
+.tbl-s th{font-size:9.5px}
+.mt{margin-top:14px}
+@media(max-width:1000px){.dgrid{grid-template-columns:1fr 1fr}.dgrid>.card:first-child{grid-column:1/-1}}
+@media(max-width:700px){.dgrid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stats>div:nth-child(2n){border-right:0}.dpx{margin-left:0;text-align:left}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><a class="brand" href="index.html"><svg class="bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="#c8ff3c"/></svg><b>Seer</b><span>electric foundation</span></a><nav class="nav"><a href="index.html">Overview</a><a href="app.html" aria-current="page">Explorer</a><a href="deep.html">Deep</a><a href="futarchy.html">Futarchy</a><a href="opportunity.html">Opportunity</a><a href="risk.html">Risk</a></nav></header>
+
+<div class="apphead">
+  <div>
+    <span class="eyebrow">explorer · all venues</span>
+    <h1>Every market, one book.</h1>
+    <p class="lede">Binary, deep, futarchy, opportunity and risk venues settle against the same collateral layer. Quotes below are last mid on the standing book.</p>
+  </div>
+  <div class="right"><span class="pill"><span class="dot"></span>oracle sync 12s</span><span class="pill">chain 1 · 18.4 gwei</span></div>
+</div>
+
+<div class="stats">
+  <div><div class="k">markets</div><div class="v">1,284</div><div class="d">+37 this week</div></div>
+  <div><div class="k">24h volume</div><div class="v">$14.2M</div><div class="d">7d avg $11.6M</div></div>
+  <div><div class="k">open interest</div><div class="v">$6.8M</div><div class="d">62% collateralised</div></div>
+  <div><div class="k">agents quoting</div><div class="v">412</div><div class="d">median uptime 99.2%</div></div>
+</div>
+
+<div class="filters">
+  <div class="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+    <input id="q" type="search" placeholder="Search markets, venues, resolution sources…" aria-label="Search markets">
+  </div>
+  <button class="chip" data-type="all" aria-pressed="true">All</button>
+  <button class="chip" data-type="Binary" aria-pressed="false">Binary</button>
+  <button class="chip" data-type="Deep" aria-pressed="false">Deep</button>
+  <button class="chip" data-type="Futarchy" aria-pressed="false">Futarchy</button>
+  <button class="chip" data-type="Opportunity" aria-pressed="false">Opportunity</button>
+  <button class="chip" data-type="Risk" aria-pressed="false">Risk</button>
+</div>
+
+<div class="tblwrap">
+<table id="mkts">
+  <thead>
+    <tr>
+      <th style="width:38%">Market</th>
+      <th>Type</th>
+      <th class="num">Estimate <span class="srt">▾</span></th>
+      <th class="num">24h</th>
+      <th class="num">Liquidity</th>
+      <th class="num">Ends</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr data-i="0" data-name="ETH staking yield above 4.2% by Q1" data-type="Binary" data-p="63.4" data-chg="2.1" data-liq="$1.42M" data-ends="Mar 31 2027" data-id="SEER-0x8f2c…a41" data-vol="$412K" data-oi="$980K" aria-selected="true">
+      <td><div class="mk"><b>ETH staking yield above 4.2% by Q1</b><i>SEER-0x8f2c…a41 · Chainlink staking APR feed</i></div></td>
+      <td><span class="tag live">Binary</span></td>
+      <td class="num">63.4¢</td>
+      <td class="num up">+2.1%</td>
+      <td class="num">$1.42M</td>
+      <td class="num dim">Mar 31 2027</td>
+    </tr>
+    <tr data-i="1" data-name="Proposal 42 passes" data-type="Futarchy" data-p="71.0" data-chg="5.8" data-liq="$860K" data-ends="Nov 14 2026" data-id="SEER-0x1b70…d09" data-vol="$268K" data-oi="$540K">
+      <td><div class="mk"><b>Proposal 42 passes</b><i>SEER-0x1b70…d09 · futarchy · two-condition market</i></div></td>
+      <td><span class="tag soon">Futarchy</span></td>
+      <td class="num">71.0¢</td>
+      <td class="num up">+5.8%</td>
+      <td class="num">$860K</td>
+      <td class="num dim">Nov 14 2026</td>
+    </tr>
+    <tr data-i="2" data-name="Protocol X solvency through 2027" data-type="Risk" data-p="88.2" data-chg="-1.4" data-liq="$2.10M" data-ends="Dec 31 2027" data-id="SEER-0x44aa…7c2" data-vol="$604K" data-oi="$1.36M">
+      <td><div class="mk"><b>Protocol X solvency through 2027</b><i>SEER-0x44aa…7c2 · attestation + treasury NAV oracle</i></div></td>
+      <td><span class="tag">Risk</span></td>
+      <td class="num">88.2¢</td>
+      <td class="num dn">−1.4%</td>
+      <td class="num">$2.10M</td>
+      <td class="num dim">Dec 31 2027</td>
+    </tr>
+    <tr data-i="3" data-name="stETH/ETH peg holds within 25 bps" data-type="Risk" data-p="94.6" data-chg="0.3" data-liq="$1.88M" data-ends="Perpetual" data-id="SEER-0x91cd…31b" data-vol="$388K" data-oi="$1.12M">
+      <td><div class="mk"><b>stETH/ETH peg holds within 25 bps</b><i>SEER-0x91cd…31b · 4h TWAP, rolling 30d window</i></div></td>
+      <td><span class="tag">Risk</span></td>
+      <td class="num">94.6¢</td>
+      <td class="num up">+0.3%</td>
+      <td class="num">$1.88M</td>
+      <td class="num dim">Perpetual</td>
+    </tr>
+    <tr data-i="4" data-name="SOL above $180 at year end" data-type="Binary" data-p="41.7" data-chg="-3.2" data-liq="$640K" data-ends="Dec 31 2026" data-id="SEER-0x77e1…8fa" data-vol="$196K" data-oi="$412K">
+      <td><div class="mk"><b>SOL above $180 at year end</b><i>SEER-0x77e1…8fa · Pyth SOL/USD, 00:00 UTC print</i></div></td>
+      <td><span class="tag live">Binary</span></td>
+      <td class="num">41.7¢</td>
+      <td class="num dn">−3.2%</td>
+      <td class="num">$640K</td>
+      <td class="num dim">Dec 31 2026</td>
+    </tr>
+    <tr data-i="5" data-name="USDC depeg below $0.98" data-type="Risk" data-p="4.3" data-chg="0.6" data-liq="$410K" data-ends="Perpetual" data-id="SEER-0x2d38…c55" data-vol="$88K" data-oi="$290K">
+      <td><div class="mk"><b>USDC depeg below $0.98</b><i>SEER-0x2d38…c55 · Chainlink USDC/USD, 1h close</i></div></td>
+      <td><span class="tag">Risk</span></td>
+      <td class="num">4.3¢</td>
+      <td class="num up">+0.6%</td>
+      <td class="num">$410K</td>
+      <td class="num dim">Perpetual</td>
+    </tr>
+    <tr data-i="6" data-name="BTC dominance above 58%" data-type="Binary" data-p="37.9" data-chg="1.1" data-liq="$520K" data-ends="Jan 15 2027" data-id="SEER-0x60fa…12e" data-vol="$142K" data-oi="$308K">
+      <td><div class="mk"><b>BTC dominance above 58%</b><i>SEER-0x60fa…12e · CMC dominance index</i></div></td>
+      <td><span class="tag live">Binary</span></td>
+      <td class="num">37.9¢</td>
+      <td class="num up">+1.1%</td>
+      <td class="num">$520K</td>
+      <td class="num dim">Jan 15 2027</td>
+    </tr>
+    <tr data-i="7" data-name="Arbitrum fee switch activates" data-type="Futarchy" data-p="28.4" data-chg="-2.7" data-liq="$295K" data-ends="Feb 28 2027" data-id="SEER-0x0cc7…9d3" data-vol="$74K" data-oi="$186K">
+      <td><div class="mk"><b>Arbitrum fee switch activates</b><i>SEER-0x0cc7…9d3 · futarchy · DAO constitutional proposal</i></div></td>
+      <td><span class="tag soon">Futarchy</span></td>
+      <td class="num">28.4¢</td>
+      <td class="num dn">−2.7%</td>
+      <td class="num">$295K</td>
+      <td class="num dim">Feb 28 2027</td>
+    </tr>
+    <tr data-i="8" data-name="ETH/USDC 30d book depth above $40M" data-type="Deep" data-p="76.1" data-chg="0.9" data-liq="$3.30M" data-ends="Rolling 30d" data-id="SEER-0x5e02…b7a" data-vol="$1.08M" data-oi="$2.44M">
+      <td><div class="mk"><b>ETH/USDC 30d book depth above $40M</b><i>SEER-0x5e02…b7a · deep venue · 30d rolling average</i></div></td>
+      <td><span class="tag">Deep</span></td>
+      <td class="num">76.1¢</td>
+      <td class="num up">+0.9%</td>
+      <td class="num">$3.30M</td>
+      <td class="num dim">Rolling 30d</td>
+    </tr>
+    <tr data-i="9" data-name="Restaking slashing event above 1,000 ETH" data-type="Risk" data-p="6.8" data-chg="-0.4" data-liq="$175K" data-ends="Perpetual" data-id="SEER-0xa1f4…e08" data-vol="$41K" data-oi="$128K">
+      <td><div class="mk"><b>Restaking slashing event above 1,000 ETH</b><i>SEER-0xa1f4…e08 · beacon chain slash log, aggregate</i></div></td>
+      <td><span class="tag">Risk</span></td>
+      <td class="num">6.8¢</td>
+      <td class="num dn">−0.4%</td>
+      <td class="num">$175K</td>
+      <td class="num dim">Perpetual</td>
+    </tr>
+    <tr data-i="10" data-name="Treasury diversification to 15% T-bills" data-type="Opportunity" data-p="52.3" data-chg="4.2" data-liq="$380K" data-ends="Q2 2027" data-id="SEER-0x33b9…4cc" data-vol="$96K" data-oi="$204K">
+      <td><div class="mk"><b>Treasury diversification to 15% T-bills</b><i>SEER-0x33b9…4cc · DAO treasury multisig snapshot</i></div></td>
+      <td><span class="tag soon">Opportunity</span></td>
+      <td class="num">52.3¢</td>
+      <td class="num up">+4.2%</td>
+      <td class="num">$380K</td>
+      <td class="num dim">Q2 2027</td>
+    </tr>
+    <tr data-i="11" data-name="L2 sequencer revenue above $12M/mo" data-type="Opportunity" data-p="44.8" data-chg="-1.8" data-liq="$210K" data-ends="Rolling" data-id="SEER-0x8de6…0f1" data-vol="$52K" data-oi="$118K">
+      <td><div class="mk"><b>L2 sequencer revenue above $12M/mo</b><i>SEER-0x8de6…0f1 · L2Beat + onchain fee accounting</i></div></td>
+      <td><span class="tag soon">Opportunity</span></td>
+      <td class="num">44.8¢</td>
+      <td class="num dn">−1.8%</td>
+      <td class="num">$210K</td>
+      <td class="num dim">Rolling</td>
+    </tr>
+    <tr data-i="12" data-name="EigenLayer TVL above $18B" data-type="Deep" data-p="61.2" data-chg="2.4" data-liq="$1.05M" data-ends="Mar 1 2027" data-id="SEER-0x9a75…2dc" data-vol="$318K" data-oi="$760K">
+      <td><div class="mk"><b>EigenLayer TVL above $18B</b><i>SEER-0x9a75…2dc · deep venue · DefiLlama TVL feed</i></div></td>
+      <td><span class="tag">Deep</span></td>
+      <td class="num">61.2¢</td>
+      <td class="num up">+2.4%</td>
+      <td class="num">$1.05M</td>
+      <td class="num dim">Mar 1 2027</td>
+    </tr>
+    <tr data-i="13" data-name="Fed cuts before June" data-type="Binary" data-p="58.6" data-chg="0.7" data-liq="$720K" data-ends="Jun 18 2027" data-id="SEER-0x12c8…6ae" data-vol="$233K" data-oi="$455K">
+      <td><div class="mk"><b>Fed cuts before June</b><i>SEER-0x12c8…6ae · FOMC statement, upper bound target</i></div></td>
+      <td><span class="tag live">Binary</span></td>
+      <td class="num">58.6¢</td>
+      <td class="num up">+0.7%</td>
+      <td class="num">$720K</td>
+      <td class="num dim">Jun 18 2027</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p class="small dim mono" id="count" style="margin:12px 0 0">14 markets · sorted by 24h volume</p>
+
+<section class="detail" id="detail">
+  <div class="dhead">
+    <div>
+      <span class="eyebrow">market detail</span>
+      <h2 id="dTitle">ETH staking yield above 4.2% by Q1</h2>
+      <div class="dmeta">
+        <span class="tag live" id="dTag">Binary</span>
+        <span class="mono small dim" id="dId">SEER-0x8f2c…a41</span>
+        <span class="mono small dim" id="dEnds">resolves Mar 31 2027</span>
+        <span class="mono small dim">collateral USDC</span>
+      </div>
+    </div>
+    <div class="dpx">
+      <div class="p" id="dPrice">63.4¢</div>
+      <div class="mono small up" id="dChg">+2.1% 24h</div>
+    </div>
+  </div>
+
+  <div class="dgrid">
+    <div class="card flat">
+      <div class="k">implied probability · 30d</div>
+      <div class="chart">
+        <svg viewBox="0 0 640 150" preserveAspectRatio="none" role="img" aria-label="30 day probability history">
+          <g stroke="rgba(140,170,200,.13)" stroke-width="1">
+            <line x1="0" y1="30" x2="640" y2="30"/>
+            <line x1="0" y1="75" x2="640" y2="75"/>
+            <line x1="0" y1="120" x2="640" y2="120"/>
+          </g>
+          <polyline id="dLine" fill="none" stroke="#35e0ff" stroke-width="2" vector-effect="non-scaling-stroke" points=""/>
+          <polyline id="dLine2" fill="none" stroke="rgba(200,255,60,.35)" stroke-width="1" stroke-dasharray="4 5" vector-effect="non-scaling-stroke" points=""/>
+          <circle id="dDot" r="3" fill="#c8ff3c"/>
+        </svg>
+      </div>
+      <div class="rowline" id="dStats">
+        <span>24h vol $412K</span><span>OI $980K</span><span>30d low 48.2¢</span><span>30d high 66.9¢</span><span>trades 1,204</span>
+      </div>
+    </div>
+
+    <div class="card flat">
+      <div class="k">order book · 4 levels</div>
+      <div class="book" id="dBook"></div>
+      <div class="rowline"><span>tick 0.1¢</span><span>min 100</span><span>maker rebate 0.05%</span></div>
+    </div>
+
+    <div class="card flat trade">
+      <div class="k">trade · simulated</div>
+      <div class="side">
+        <button id="bBuy" aria-pressed="true">Buy YES</button>
+        <button id="bSell" class="sell" aria-pressed="false">Sell YES</button>
+      </div>
+      <label for="sz">size · contracts</label>
+      <input id="sz" type="number" value="5000" min="0" step="100">
+      <label for="lim">limit · cents</label>
+      <input id="lim" type="number" value="63.4" min="0.1" max="99.9" step="0.1">
+      <div class="calc" id="calcOut"></div>
+    </div>
+  </div>
+
+  <div class="card flat mt">
+    <div class="k">your positions · this market</div>
+    <table class="tbl-s">
+      <thead><tr><th>Side</th><th class="num">Contracts</th><th class="num">Avg</th><th class="num">Mark</th><th class="num">PnL</th><th class="num">Value</th></tr></thead>
+      <tbody id="dPos"></tbody>
+    </table>
+  </div>
+</section>
+
+<footer class="foot">Seer — the protocol beneath the applications · <a href="index.html">overview</a> · simulation interface, no funds at risk</footer>
+</div>
+
+<script>
+(function(){
+  var rows=[].slice.call(document.querySelectorAll('#mkts tbody tr'));
+  var chips=[].slice.call(document.querySelectorAll('.chip'));
+  var q=document.getElementById('q');
+  var count=document.getElementById('count');
+  var type='all', current=rows[0];
+  var buy=true;
+
+  function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function money(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function sign(n){return (n>=0?'+':'−')+Math.abs(n).toFixed(2);}
+  function sgn(n){return n>=0?'up':'dn';}
+  function pre(n){return n>=0?'+':'−';}
+
+  function buildBook(p,seed){
+    var r=rng(seed*97+13), asks=[], bids=[], k, sz;
+    for(k=4;k>=1;k--){sz=Math.round((2500+r()*24000)/100)*100;asks.push({px:p+0.2*k+ (r()*0.09-0.04),sz:sz});}
+    for(k=1;k<=4;k++){sz=Math.round((2500+r()*30000)/100)*100;bids.push({px:p-0.2*k+(r()*0.09-0.04),sz:sz});}
+    var mx=Math.max.apply(null,asks.map(function(a){return a.sz;}).concat(bids.map(function(b){return b.sz;}))), html='';
+    asks.forEach(function(a){html+='<div class="lv a"><i style="width:'+Math.max(6,Math.round(a.sz/mx*96))+'%"></i><span class="px">'+a.px.toFixed(1)+'</span><span>'+a.sz.toLocaleString('en-US')+'</span></div>';});
+    var spread=asks[asks.length-1].px-bids[0].px;
+    html+='<div class="mid"><span>mid '+p.toFixed(1)+'¢</span><span>spread '+spread.toFixed(1)+'¢</span></div>';
+    bids.forEach(function(b){html+='<div class="lv b"><i style="width:'+Math.max(6,Math.round(b.sz/mx*96))+'%"></i><span class="px">'+b.px.toFixed(1)+'</span><span>'+b.sz.toLocaleString('en-US')+'</span></div>';});
+    document.getElementById('dBook').innerHTML=html;
+  }
+
+  function buildChart(p,seed){
+    var r=rng(seed*31+5), n=14, vals=[p], i;
+    for(i=1;i<n;i++) vals.unshift(vals[0]-(r()-0.5)*7.5);
+    var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals);
+    lo=Math.max(1,lo-3); hi=Math.min(99,hi+3);
+    function y(v){return 132-((v-lo)/(hi-lo))*108;}
+    var pts=vals.map(function(v,idx){return (idx*(640/(n-1))).toFixed(1)+','+y(v).toFixed(1);}).join(' ');
+    document.getElementById('dLine').setAttribute('points',pts);
+    var base=vals.slice(0,n-1).map(function(v){return v+(r()-0.5)*3;});
+    document.getElementById('dLine2').setAttribute('points',base.map(function(v,idx){return (idx*(640/(n-1))).toFixed(1)+','+y(v).toFixed(1);}).join(' '));
+    var dot=document.getElementById('dDot');
+    dot.setAttribute('cx',640);dot.setAttribute('cy',y(p).toFixed(1));
+    document.getElementById('dStats').innerHTML='<span>24h vol '+current.dataset.vol+'</span><span>OI '+current.dataset.oi+'</span><span>30d low '+lo.toFixed(1)+'¢</span><span>30d high '+hi.toFixed(1)+'¢</span>';
+  }
+
+  function buildPos(p,seed){
+    var r=rng(seed*13+3);
+    var s1=Math.round((1500+r()*24000)/100)*100, s2=Math.round((800+r()*9000)/100)*100;
+    var a1=Math.max(2,p-(1.6+r()*7)), a2=Math.min(98,100-p+1.2+r()*4);
+    var pnl1=(p-a1)/100*s1, pnl2=((100-p)-a2)/100*s2;
+    document.getElementById('dPos').innerHTML=
+      '<tr><td><span class="tag live">YES</span></td><td class="num">'+s1.toLocaleString('en-US')+'</td><td class="num">'+a1.toFixed(1)+'¢</td><td class="num">'+p.toFixed(1)+'¢</td><td class="num '+sgn(pnl1)+'">'+pre(pnl1)+money(Math.abs(pnl1))+'</td><td class="num">'+money(s1*p/100)+'</td></tr>'+
+      '<tr><td><span class="tag">NO</span></td><td class="num">'+s2.toLocaleString('en-US')+'</td><td class="num">'+a2.toFixed(1)+'¢</td><td class="num">'+(100-p).toFixed(1)+'¢</td><td class="num '+sgn(pnl2)+'">'+pre(pnl2)+money(Math.abs(pnl2))+'</td><td class="num">'+money(s2*(100-p)/100)+'</td></tr>';
+  }
+
+  function calc(){
+    var size=Math.max(0,parseFloat(document.getElementById('sz').value)||0);
+    var lim=Math.min(99.9,Math.max(0.1,parseFloat(document.getElementById('lim').value)||0));
+    var notional=size*lim/100, fee=notional*0.003, out=document.getElementById('calcOut'), html='';
+    if(buy){
+      html+='<div><span>notional</span><b>'+money(notional)+'</b></div>';
+      html+='<div><span>fee 0.30%</span><b>'+money(fee)+'</b></div>';
+      html+='<div><span>total cost</span><b>'+money(notional+fee)+'</b></div>';
+      html+='<div><span>max payout</span><b>'+money(size)+'</b></div>';
+      html+='<div><span>net if correct</span><b class="up">'+money(size-notional-fee)+'</b></div>';
+    }else{
+      html+='<div><span>notional</span><b>'+money(notional)+'</b></div>';
+      html+='<div><span>fee 0.30%</span><b>'+money(fee)+'</b></div>';
+      html+='<div><span>proceeds</span><b>'+money(Math.max(0,notional-fee))+'</b></div>';
+      html+='<div><span>contracts sold</span><b>'+size.toLocaleString('en-US')+'</b></div>';
+      html+='<div><span>released collateral</span><b>'+money(size*(100-lim)/100)+'</b></div>';
+    }
+    out.innerHTML=html;
+  }
+
+  function select(row){
+    current=row;
+    rows.forEach(function(r){r.setAttribute('aria-selected',r===row?'true':'false');});
+    var p=parseFloat(row.dataset.p), chg=parseFloat(row.dataset.chg), seed=parseInt(row.dataset.i,10)+7;
+    document.getElementById('dTitle').textContent=row.dataset.name;
+    document.getElementById('dId').textContent=row.dataset.id;
+    document.getElementById('dEnds').textContent='resolves '+row.dataset.ends;
+    var tag=document.getElementById('dTag');
+    tag.textContent=row.dataset.type;
+    tag.className='tag '+(row.dataset.type==='Binary'?'live':row.dataset.type==='Futarchy'||row.dataset.type==='Opportunity'?'soon':'');
+    document.getElementById('dPrice').textContent=p.toFixed(1)+'¢';
+    var c=document.getElementById('dChg');
+    c.textContent=(chg>=0?'+':'−')+Math.abs(chg).toFixed(1)+'% 24h';
+    c.className='mono small '+(chg>=0?'up':'dn');
+    document.getElementById('lim').value=p.toFixed(1);
+    buildBook(p,seed);buildChart(p,seed);buildPos(p,seed);calc();
+  }
+
+  rows.forEach(function(r){r.addEventListener('click',function(){select(r);});});
+
+  function apply(){
+    var term=q.value.trim().toLowerCase(), shown=0;
+    rows.forEach(function(r){
+      var ok=(type==='all'||r.dataset.type===type)&&(!term||r.dataset.name.toLowerCase().indexOf(term)>-1||r.dataset.type.toLowerCase().indexOf(term)>-1||r.dataset.id.toLowerCase().indexOf(term)>-1);
+      r.style.display=ok?'':'none';
+      if(ok) shown++;
+    });
+    count.textContent=shown+' market'+(shown===1?'':'s')+((term||type!=='all')?' · filtered':' · sorted by 24h volume');
+    if(current.style.display==='none'){
+      var first=rows.filter(function(r){return r.style.display!=='none';})[0];
+      if(first) select(first);
+    }
+  }
+
+  chips.forEach(function(c){
+    c.addEventListener('click',function(){
+      type=c.dataset.type;
+      chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false');});
+      apply();
+    });
+  });
+  q.addEventListener('input',apply);
+
+  document.getElementById('bBuy').addEventListener('click',function(){buy=true;this.setAttribute('aria-pressed','true');document.getElementById('bSell').setAttribute('aria-pressed','false');calc();});
+  document.getElementById('bSell').addEventListener('click',function(){buy=false;this.setAttribute('aria-pressed','true');document.getElementById('bBuy').setAttribute('aria-pressed','false');calc();});
+  document.getElementById('sz').addEventListener('input',calc);
+  document.getElementById('lim').addEventListener('input',calc);
+
+  select(rows[0]);
+})();
+</script>
+</body>
+</html>
