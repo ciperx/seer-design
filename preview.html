@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1600">
+<title>Seer — Electric Foundation · preview</title>
+<link rel="stylesheet" href="assets/ef.css">
+<style>
+  html,body{margin:0;padding:0;background:#05070a}
+  body{width:1600px;height:1200px;overflow:hidden;color:var(--ink);font-family:var(--sans)}
+  body::before{opacity:.18;background-size:64px 64px}
+  .poster{position:relative;z-index:1;width:1600px;height:1200px;padding:52px 58px 36px;display:flex;flex-direction:column;gap:22px;
+    background:radial-gradient(900px 520px at 82% -8%,rgba(53,224,255,.10),transparent 62%),radial-gradient(720px 420px at 4% 0%,rgba(200,255,60,.06),transparent 60%)}
+  .phead{display:flex;align-items:flex-end;gap:26px;padding-bottom:20px;border-bottom:1px solid rgba(140,170,200,.22)}
+  .boltmark{width:54px;height:54px;flex:0 0 auto;border:1px solid rgba(200,255,60,.35);border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(200,255,60,.05)}
+  .boltmark svg{width:26px;height:26px}
+  .phead h1{margin:0;font-size:44px;line-height:1;letter-spacing:-.035em;font-weight:700}
+  .psub{font-family:var(--mono);font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);margin-top:10px}
+  .pmeta{margin-left:auto;text-align:right;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer);line-height:2}
+  .pmeta b{color:var(--volt);font-weight:400}
+  .pgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:18px}
+  .tile{position:relative;margin:0;display:flex;flex-direction:column;gap:10px;padding:12px;overflow:hidden;
+    border:1px solid rgba(140,170,200,.18);border-radius:12px;background:linear-gradient(180deg,#0e141c,#0a0e14)}
+  .tile::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(340px 160px at 84% -18%,rgba(53,224,255,.09),transparent 70%)}
+  .tile figcaption{display:flex;align-items:baseline;gap:10px;padding-top:9px;border-top:1px solid rgba(140,170,200,.16)}
+  .idx{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--volt)}
+  .tile b{font-size:16px;font-weight:600;letter-spacing:-.01em}
+  .cap{margin-left:auto;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#7f8d9c;white-space:nowrap}
+  .mock{flex:1;min-height:0;display:flex;flex-direction:column;gap:7px;padding:9px 10px;overflow:hidden;
+    border:1px solid rgba(140,170,200,.13);border-radius:7px;background:#080c11}
+  .mock svg{display:block;width:100%}
+  .grow{flex:1 1 auto;height:100%;min-height:0}
+  .mgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .mgrid2{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:6px;flex:1;min-height:0}
+  .mcard{display:flex;flex-direction:column;gap:2px;padding:6px 7px;border:1px solid rgba(140,170,200,.13);border-radius:4px;background:rgba(11,15,21,.6)}
+  .mcard.fill{justify-content:flex-start;padding:9px 8px}
+  .mcard .barline{margin-top:auto}
+  .up{color:#5ef2a0}
+  .dn{color:#ff9d78}
+  .k{font-family:var(--mono);font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:#55616e;white-space:nowrap}
+  .v{font-family:var(--mono);font-size:12.5px;letter-spacing:-.01em;color:#e9f1f8;white-space:nowrap}
+  .sm{font-size:9px;color:#8fa0b4}
+  .mrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4.5px 0;border-bottom:1px solid rgba(140,170,200,.10);
+    font-family:var(--mono);font-size:8.5px;color:#8fa0b4;white-space:nowrap}
+  .mrow:last-child{border-bottom:0}
+  .mrow span:last-child{color:#c3cedb}
+  .barline{height:3px;border-radius:2px;background:rgba(140,170,200,.16);overflow:hidden;flex:0 0 auto}
+  .barline i{display:block;height:100%;background:rgba(53,224,255,.6)}
+  .splitmock{display:grid;grid-template-columns:1.02fr .98fr;gap:7px;flex:1;min-height:0}
+  .rail{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .ritem{display:flex;align-items:center;gap:5px;padding:3.5px 5px;border:1px solid rgba(140,170,200,.12);border-radius:4px;
+    font-family:var(--mono);font-size:8px;color:#a8b6c4;min-width:0;flex:1 1 0}
+  .ritem span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ritem .d{width:4px;height:4px;border-radius:50%;background:var(--elec);flex:0 0 auto}
+  .ritem em{margin-left:auto;font-style:normal;color:#5ef2a0;font-size:8px;flex:0 0 auto}
+  .colhead{display:flex;justify-content:space-between;font-family:var(--mono);font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap}
+  .axl{font-family:var(--mono);font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:#6e7b89}
+  .brow{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+  .brow .barline{flex:1}
+  .brow .axl{color:#8fa0b4}
+  .pfoot{display:flex;justify-content:space-between;align-items:center;padding-top:13px;border-top:1px solid rgba(140,170,200,.18);
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#55616e}
+  .pfoot b{color:var(--dim);font-weight:400}
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <div class="phead">
+    <div class="boltmark">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="#c8ff3c"/></svg>
+    </div>
+    <div>
+      <h1>SEER — Electric Foundation</h1>
+      <div class="psub">six connected interfaces</div>
+    </div>
+    <div class="pmeta">
+      submission <b>38</b><br>
+      surface <b>1600 × 1200</b><br>
+      state <b>simulated</b>
+    </div>
+  </div>
+
+  <div class="pgrid">
+
+    <!-- 01 OVERVIEW -->
+    <figure class="tile">
+      <div class="mock">
+        <div class="mgrid3">
+          <div class="mcard"><span class="k">tvl</span><span class="v">$4.82B</span></div>
+          <div class="mcard"><span class="k">open</span><span class="v">318</span></div>
+          <div class="mcard"><span class="k">blended</span><span class="v">7.4%</span></div>
+        </div>
+        <svg class="grow" viewBox="0 0 300 120" preserveAspectRatio="none" role="img" aria-label="Portfolio value trend">
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#c8ff3c" stop-opacity=".26"/><stop offset="1" stop-color="#c8ff3c" stop-opacity="0"/>
+          </linearGradient></defs>
+          <g stroke="rgba(140,170,200,.10)" stroke-width="1">
+            <line x1="0" y1="30" x2="300" y2="30"/><line x1="0" y1="72" x2="300" y2="72"/><line x1="0" y1="114" x2="300" y2="114"/>
+          </g>
+          <path d="M0,92 25,84 50,88 75,72 100,78 125,62 150,67 175,50 200,56 225,38 250,44 275,28 300,33 L300,120 L0,120 Z" fill="url(#g1)"/>
+          <polyline points="0,92 25,84 50,88 75,72 100,78 125,62 150,67 175,50 200,56 225,38 250,44 275,28 300,33"
+                    fill="none" stroke="#c8ff3c" stroke-width="1.6"/>
+          <circle cx="300" cy="33" r="2.6" fill="#c8ff3c"/>
+        </svg>
+        <div class="mrow"><span class="axl">01 oct</span><span class="axl">20 oct · +6.1%</span></div>
+        <div class="mrow"><span>lending</span><span>41.2%</span></div>
+        <div class="mrow"><span>liquid staking</span><span>27.8%</span></div>
+        <div class="mrow"><span>basis carry</span><span>18.4%</span></div>
+        <div class="brow"><div class="barline"><i style="width:74%"></i></div><span class="axl">diversified 74</span></div>
+      </div>
+      <figcaption><span class="idx">01</span><b>Overview</b><span class="cap">capital in, positions out</span></figcaption>
+    </figure>
+
+    <!-- 02 EXPLORER -->
+    <figure class="tile">
+      <div class="mock">
+        <div class="colhead"><span style="color:#55616e">entry · 318</span><span style="color:#35e0ff">risk / yield</span></div>
+        <div class="splitmock">
+          <div class="rail">
+            <div class="ritem"><span class="d"></span><span>Aave v3</span><em>4.1</em></div>
+            <div class="ritem"><span class="d"></span><span>Morpho</span><em>6.8</em></div>
+            <div class="ritem"><span class="d" style="background:#c8ff3c"></span><span>Pendle</span><em>9.2</em></div>
+            <div class="ritem"><span class="d" style="background:#ff7a4d"></span><span>Maple</span><em>11.4</em></div>
+            <div class="ritem"><span class="d"></span><span>Spark</span><em>5.6</em></div>
+            <div class="ritem"><span class="d"></span><span>Lido</span><em>3.4</em></div>
+            <div class="ritem"><span class="d" style="background:#5ef2a0"></span><span>Ethena</span><em>8.7</em></div>
+            <div class="ritem"><span class="d"></span><span>Euler v2</span><em>7.1</em></div>
+          </div>
+          <div style="display:flex;flex-direction:column;min-height:0;gap:3px">
+            <svg class="grow" viewBox="0 0 170 210" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Risk against yield scatter">
+              <g stroke="rgba(140,170,200,.12)" stroke-width="1">
+                <line x1="16" y1="186" x2="164" y2="186"/><line x1="16" y1="10" x2="16" y2="186"/>
+                <line x1="16" y1="142" x2="164" y2="142"/><line x1="16" y1="98" x2="164" y2="98"/><line x1="16" y1="54" x2="164" y2="54"/>
+              </g>
+              <g fill="#35e0ff" opacity=".8">
+                <circle cx="30" cy="34" r="3"/><circle cx="50" cy="152" r="3"/><circle cx="68" cy="128" r="3"/>
+                <circle cx="86" cy="144" r="3"/><circle cx="104" cy="104" r="3"/><circle cx="126" cy="82" r="3"/>
+                <circle cx="146" cy="46" r="3"/><circle cx="58" cy="172" r="3"/><circle cx="122" cy="134" r="3"/>
+                <circle cx="94" cy="64" r="3"/><circle cx="40" cy="106" r="3"/><circle cx="152" cy="158" r="3"/>
+              </g>
+              <circle cx="112" cy="96" r="7" fill="none" stroke="#c8ff3c" stroke-width="1.2"/>
+              <circle cx="112" cy="96" r="3" fill="#c8ff3c"/>
+              <text x="120" y="92" fill="#c8ff3c" font-family="monospace" font-size="7">9.2</text>
+              <text x="16" y="200" fill="#6e7b89" font-family="monospace" font-size="6.5">LOW</text>
+              <text x="164" y="200" fill="#6e7b89" font-family="monospace" font-size="6.5" text-anchor="end">HIGH RISK</text>
+              <text x="164" y="9" fill="#6e7b89" font-family="monospace" font-size="6.5" text-anchor="end">YIELD</text>
+            </svg>
+          </div>
+        </div>
+        <div class="mrow"><span>visible</span><span>318 · 9 stale</span></div>
+      </div>
+      <figcaption><span class="idx">02</span><b>Explorer</b><span class="cap">every entry, priced</span></figcaption>
+    </figure>
+
+    <!-- 03 DEEP -->
+    <figure class="tile">
+      <div class="mock">
+        <div class="colhead"><span style="color:#55616e">eth · usdc 0.05%</span><span style="color:#5ef2a0">depth 88</span></div>
+        <svg class="grow" viewBox="0 0 300 130" preserveAspectRatio="none" role="img" aria-label="Order book depth, bid and ask sides meeting at mid">
+          <defs>
+            <linearGradient id="g3a" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#35e0ff" stop-opacity=".3"/><stop offset="1" stop-color="#35e0ff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="g3b" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#c8ff3c" stop-opacity=".22"/><stop offset="1" stop-color="#c8ff3c" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g stroke="rgba(140,170,200,.10)" stroke-width="1">
+            <line x1="0" y1="34" x2="300" y2="34"/><line x1="0" y1="78" x2="300" y2="78"/><line x1="0" y1="120" x2="300" y2="120"/>
+          </g>
+          <path d="M0,16 40,26 80,43 112,63 140,87 150,97 L150,130 L0,130 Z" fill="url(#g3a)"/>
+          <path d="M300,16 260,26 220,43 188,63 160,87 150,97 L150,130 L300,130 Z" fill="url(#g3b)"/>
+          <polyline points="0,16 40,26 80,43 112,63 140,87 150,97" fill="none" stroke="#35e0ff" stroke-width="1.5"/>
+          <polyline points="300,16 260,26 220,43 188,63 160,87 150,97" fill="none" stroke="#c8ff3c" stroke-width="1.5"/>
+          <line x1="150" y1="10" x2="150" y2="130" stroke="rgba(233,241,248,.20)" stroke-width="1" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="mrow"><span class="axl">0.045</span><span class="axl" style="margin:0 auto">mid 0.0498</span><span class="axl">0.055</span></div>
+        <div class="mrow"><span>bid 10M</span><span>0.0492 · 41M</span></div>
+        <div class="mrow"><span>ask 10M</span><span>0.0504 · 38M</span></div>
+        <div class="brow"><div class="barline"><i style="width:86%"></i></div><span class="axl">absorb 86%</span></div>
+      </div>
+      <figcaption><span class="idx">03</span><b>Deep</b><span class="cap">size before price</span></figcaption>
+    </figure>
+
+    <!-- 04 FUTARCHY -->
+    <figure class="tile">
+      <div class="mock">
+        <div class="colhead"><span style="color:#5ef2a0">pass 0.61</span><span style="color:#ff7a4d">fail 0.39</span></div>
+        <svg class="grow" viewBox="0 0 300 118" preserveAspectRatio="none" role="img" aria-label="Conditional market prices converging">
+          <g stroke="rgba(140,170,200,.12)" stroke-width="1"><line x1="0" y1="30" x2="300" y2="30"/><line x1="0" y1="59" x2="300" y2="59"/><line x1="0" y1="88" x2="300" y2="88"/></g>
+          <path d="M0,78 30,74 60,68 90,60 120,51 150,42 180,33 210,26 240,20 270,16 300,13 L300,103 270,100 240,96 210,91 180,85 150,76 120,67 90,58 60,50 30,44 0,40 Z" fill="rgba(53,224,255,.07)"/>
+          <polyline points="0,78 30,74 60,68 90,60 120,51 150,42 180,33 210,26 240,20 270,16 300,13" fill="none" stroke="#5ef2a0" stroke-width="1.6"/>
+          <polyline points="0,40 30,44 60,50 90,58 120,67 150,76 180,85 210,91 240,96 270,100 300,103" fill="none" stroke="#ff7a4d" stroke-width="1.6" opacity=".85"/>
+          <line x1="0" y1="59" x2="300" y2="59" stroke="rgba(233,241,248,.16)" stroke-width="1" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="mrow"><span>fee switch · q4</span><span>0.61 / 0.39</span></div>
+        <div class="mrow"><span>buyback · 12m</span><span>0.44 / 0.56</span></div>
+        <div class="mrow"><span>treasury · 5%</span><span>0.72 / 0.28</span></div>
+      </div>
+      <figcaption><span class="idx">04</span><b>Futarchy</b><span class="cap">markets decide</span></figcaption>
+    </figure>
+
+    <!-- 05 OPPORTUNITY -->
+    <figure class="tile">
+      <div class="mock">
+        <div class="colhead"><span style="color:#55616e">screened · 11 open</span><span style="color:#c8ff3c">edge 4.1%</span></div>
+        <div class="mgrid2">
+          <div class="mcard fill"><span class="k">spread</span><span class="v">148<span class="sm"> bps</span></span><span class="axl up">+18 · 7d</span><div class="barline"><i style="width:72%"></i></div></div>
+          <div class="mcard fill"><span class="k">carry</span><span class="v">9.4<span class="sm"> %</span></span><span class="axl up">+0.6 · 7d</span><div class="barline"><i style="width:54%"></i></div></div>
+          <div class="mcard fill"><span class="k">basis</span><span class="v">-32<span class="sm"> bps</span></span><span class="axl dn">-11 · 7d</span><div class="barline"><i style="width:31%;background:rgba(255,122,77,.65)"></i></div></div>
+          <div class="mcard fill"><span class="k">queue</span><span class="v">11<span class="sm"> open</span></span><span class="axl">4 new today</span><div class="barline"><i style="width:44%"></i></div></div>
+        </div>
+        <div class="mrow"><span>top signal</span><span style="color:#c8ff3c">pendle · pt-usdc</span></div>
+        <div class="mrow"><span>expiry</span><span>18d · 4.1% edge</span></div>
+      </div>
+      <figcaption><span class="idx">05</span><b>Opportunity</b><span class="cap">what is mispriced</span></figcaption>
+    </figure>
+
+    <!-- 06 SOUNDINGS -->
+    <figure class="tile">
+      <div class="mock">
+        <div class="colhead"><span style="color:#55616e">risk · depth</span><span style="color:#c8ff3c">10 protocols</span></div>
+        <svg class="grow" viewBox="0 0 300 132" preserveAspectRatio="none" role="img" aria-label="Risk contours across protocol depth">
+          <defs><linearGradient id="g6" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#35e0ff" stop-opacity=".20"/><stop offset="1" stop-color="#35e0ff" stop-opacity="0"/>
+          </linearGradient></defs>
+          <g stroke="rgba(140,170,200,.10)" stroke-width="1"><line x1="0" y1="32" x2="300" y2="32"/><line x1="0" y1="76" x2="300" y2="76"/></g>
+          <path d="M0,84 40,74 80,66 120,56 160,45 200,34 240,24 280,16 300,12 L300,132 L0,132 Z" fill="url(#g6)"/>
+          <polyline points="0,84 40,74 80,66 120,56 160,45 200,34 240,24 280,16 300,12" fill="none" stroke="#c8ff3c" stroke-width="1.6"/>
+          <polyline points="0,102 40,93 80,85 120,75 160,64 200,52 240,41 280,31 300,27" fill="none" stroke="#35e0ff" stroke-width="1.2" opacity=".8"/>
+          <polyline points="0,116 40,109 80,102 120,93 160,82 200,70 240,58 280,47 300,42" fill="none" stroke="#8fa0b4" stroke-width="1" opacity=".5" stroke-dasharray="3 3"/>
+          <circle cx="120" cy="56" r="2.8" fill="#c8ff3c"/>
+        </svg>
+        <div class="mrow"><span>aave v3</span><span>4,200 bps · 92</span></div>
+        <div class="mrow"><span>maple</span><span>6,900 bps · 41</span></div>
+        <div class="brow"><div class="barline"><i style="width:92%"></i></div><span class="axl">board median 66</span></div>
+      </div>
+      <figcaption><span class="idx">06</span><b>Soundings</b><span class="cap">risk, measured in depth</span></figcaption>
+    </figure>
+
+  </div>
+
+  <div class="pfoot">
+    <span>simulation interface · no funds at risk</span>
+    <span><b>seer</b> / explorer / deep / futarchy / opportunity / soundings</span>
+    <span>v0.4</span>
+  </div>
+
+</div>
+</body>
+</html>
