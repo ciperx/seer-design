@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Opportunity — selection markets · Seer</title>
+<meta name="description" content="Six rebrand submissions competing for selection. Market prices forecast which one the review panel picks. Browse the board, inspect a submission, model the cost of backing it.">
+<link rel="stylesheet" href="assets/ef.css">
+<style>
+/* opportunity page: board table, detail + order panel */
+.sum{padding:0;overflow:hidden}
+.sum .head{padding:20px 20px 18px}
+.sum .fav{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:10px}
+.sum .fav b{font-size:clamp(20px,2.4vw,26px);letter-spacing:-.02em;font-weight:650}
+.sum .fav span{font-family:var(--mono);font-size:22px;color:var(--volt);font-variant-numeric:tabular-nums}
+.sumgrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.sumgrid>div{padding:16px 20px;border-right:1px solid var(--line)}
+.sumgrid>div:last-child{border-right:0}
+.sumgrid .v{font-size:20px}
+.board{width:100%}
+.heroGrid{display:grid;grid-template-columns:1.34fr .66fr;gap:clamp(22px,4vw,52px);align-items:start;margin-top:26px}
+.side{border-top:1px solid var(--line-2);padding-top:12px}
+.side .r{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.03em}
+.side .r:last-child{border-bottom:0}
+.side .r b{color:var(--dim);font-weight:400;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.side .r span{color:var(--ink);font-family:var(--mono);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.tr{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--dim)}
+.tr:last-child{border-bottom:0;padding-bottom:0}
+.tr b{font-family:var(--mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums;font-size:11.5px}
+@media(max-width:820px){.heroGrid{grid-template-columns:1fr}}
+.board th:first-child,.board td:first-child{padding-left:16px;width:38px}
+.board td{padding:13px 12px;vertical-align:middle}
+.board tr.pick{cursor:pointer}
+.board tr.pick:hover td{background:rgba(53,224,255,.045)}
+.board tr.pick.on td{background:rgba(200,255,60,.05)}
+.board tr.pick.on td:first-child{box-shadow:inset 2px 0 0 var(--volt)}
+.board .rk{font-family:var(--mono);font-size:11px;color:var(--dimmer)}
+.board .ttl{font-weight:600;color:var(--ink);font-size:14px}
+.board .mark{font-size:12px;color:var(--dim);margin-top:2px}
+.board .sub{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+.board .pr{font-family:var(--mono);font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.board .bar{width:110px}
+.up{color:var(--good)} .dn{color:var(--warn)}
+.detail .big{font-family:var(--mono);font-size:clamp(32px,4.4vw,44px);letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}
+.detail .big small{font-size:15px;color:var(--dim);margin-left:2px}
+.panel label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer);margin-bottom:8px}
+.amt{display:flex;align-items:center;gap:10px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg-2);padding:10px 12px}
+.amt input{flex:1;background:none;border:0;outline:none;color:var(--ink);font-family:var(--mono);font-size:19px;font-variant-numeric:tabular-nums;min-width:0}
+.amt span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--dimmer);text-transform:uppercase}
+.quick{display:flex;gap:6px;margin-top:9px}
+.quick button{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:7px;padding:7px 0;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;cursor:pointer}
+.quick button:hover{color:var(--ink);border-color:var(--line-2)}
+.quick button.on{color:var(--volt);border-color:rgba(200,255,60,.42);background:rgba(200,255,60,.06)}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim)}
+.rows div b{font-family:var(--mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.rows div.tot{border-bottom:0;color:var(--ink)}
+.rows div.tot b{font-size:15px}
+.orders{width:100%;border:0;cursor:pointer;justify-content:center;margin-top:14px}
+.status{min-height:32px;margin-top:10px}
+@media(max-width:760px){.board .hide-s{display:none}.board .bar{width:70px}.sumgrid{grid-template-columns:1fr}.sumgrid>div{border-right:0;border-bottom:1px solid var(--line)}}
+@media(max-width:640px){.top{flex-wrap:wrap;gap:12px}.brand span{display:none}.nav{margin-left:0;width:100%;gap:4px;flex-wrap:wrap}.nav a{padding:6px 8px;font-size:9.5px;letter-spacing:.05em;white-space:nowrap}.eyebrow{font-size:10px;letter-spacing:.14em}.detail .big{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top"><a class="brand" href="index.html"><svg class="bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="#c8ff3c"/></svg><b>Seer</b><span>electric foundation</span></a><nav class="nav"><a href="index.html">Overview</a><a href="app.html">Explorer</a><a href="deep.html">Deep</a><a href="futarchy.html">Futarchy</a><a href="opportunity.html" aria-current="page">Opportunity</a><a href="risk.html">Risk</a></nav></header>
+
+<main>
+
+<section class="hero">
+  <span class="pill"><span class="dot"></span>Open · closes 23 Oct 18:00 UTC</span>
+  <div class="eyebrow" style="margin-top:22px">Selection markets · cohort 04 · rebrand</div>
+  <h1>Six studios. One mark.<br><em>One forecast.</em></h1>
+  <div class="heroGrid">
+    <div>
+      <p class="lede">Each submission trades between $0.00 and $1.00 and pays $1.00 if the review panel selects it. The board is a live ranking of what traders expect, not a shortlist the panel has agreed to.</p>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:24px">
+        <span class="pill">6 submissions</span>
+        <span class="pill">$1.24M traded</span>
+        <span class="pill">Panel: 5 seats</span>
+        <span class="pill"><span class="dot" style="background:var(--elec);box-shadow:0 0 10px var(--elec)"></span>Settles T+0</span>
+      </div>
+    </div>
+    <aside class="side" aria-label="Cohort brief">
+      <div class="r"><b>Award</b><span>$48,000</span></div>
+      <div class="r"><b>Scope</b><span>Mark, wordmark, 6 assets</span></div>
+      <div class="r"><b>Delivery</b><span>10 weeks from award</span></div>
+      <div class="r"><b>Rights</b><span>Full assignment</span></div>
+      <div class="r"><b>Decision</b><span>23 Oct · 18:00</span></div>
+    </aside>
+  </div>
+</section>
+
+<section>
+  <div class="split">
+    <div>
+      <div class="card sum">
+        <div class="head">
+          <div class="k">Market-implied favourite</div>
+          <div class="fav"><b>Atelier Voss</b><span>46.3%</span></div>
+          <div class="small dim" style="margin-top:6px">Ledger mark, split bolt · atelier.voss</div>
+        </div>
+        <div class="sumgrid">
+          <div><div class="k">Spread over second</div><div class="v">18.9 pts</div></div>
+          <div><div class="k">Total volume</div><div class="v">$1.24M</div></div>
+          <div><div class="k">Median trade</div><div class="v">$1,840</div></div>
+        </div>
+      </div>
+
+      <div class="card flat" style="margin-top:14px">
+        <div class="k">Latest trades</div>
+        <div style="margin-top:8px">
+          <div class="tr"><span class="mono">09:12</span><span>Atelier Voss</span><b>+820 @ 46.1¢</b></div>
+          <div class="tr"><span class="mono">09:04</span><span>Studio Marrow</span><b>−1,400 @ 27.6¢</b></div>
+          <div class="tr"><span class="mono">08:51</span><span>Common Form</span><b>−2,000 @ 2.2¢</b></div>
+          <div class="tr"><span class="mono">08:38</span><span>Kessler &amp; Frame</span><b>+600 @ 12.8¢</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="eyebrow">How to read the board</div>
+      <h2 style="margin-top:8px">Traders forecast. Reviewers select.</h2>
+      <p>A price of 46.3¢ means the market thinks Atelier Voss has roughly a 46% chance of being chosen. It is a forecast, made by people with money on the line, and it is wrong whenever the panel disagrees.</p>
+      <p>The panel runs a blind first pass, then a scored second pass on craft, systems fit and implementation cost. It sees the prices — the brief asks it to — but it is not bound by them, and it has picked against the favourite twice in three cohorts.</p>
+      <div class="small mono dim" style="display:grid;gap:6px;margin-top:14px">
+        <span>· prices update on trade, 20s marks</span>
+        <span>· no position may exceed 12% of a book</span>
+        <span>· selection pays $1.00, everything else $0.00</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:16px">
+    <div>
+      <div class="eyebrow">The board</div>
+      <h2 style="margin-top:8px">All submissions, marked to selection</h2>
+    </div>
+    <div class="mono small dim">Marks 20 Oct 09:14 UTC · 24h change</div>
+  </div>
+
+  <div class="card flat" style="padding:4px 6px 6px;overflow-x:auto">
+    <table class="board">
+      <thead>
+        <tr>
+          <th>#</th><th>Submission</th><th class="hide-s">Submitter</th><th class="num">Price</th><th class="num">24h</th><th class="num hide-s">30d vol</th><th style="width:118px"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="pick on" tabindex="0" data-id="01" data-title="Ledger mark, split bolt" data-studio="Atelier Voss" data-sub="atelier.voss · Lisbon" data-price="46.3" data-move="6.2" data-vol="418" data-p0="0.214" data-p1="0.463" data-seed="1.2" data-note="A single-weight ledger mark with the bolt split across the counter of the S. Ships as SVG, a 16px favicon and a one-colour stamp for physical collateral.">
+          <td class="rk">01</td>
+          <td><div class="ttl">Atelier Voss</div><div class="mark">Ledger mark, split bolt</div></td>
+          <td class="sub hide-s">atelier.voss · Lisbon</td>
+          <td class="num pr">46.3%</td>
+          <td class="num mono up">+6.2</td>
+          <td class="num mono hide-s" style="color:var(--dim)">$418K</td>
+          <td><div class="bar"><i style="width:46.3%"></i></div></td>
+        </tr>
+        <tr class="pick" tabindex="0" data-id="02" data-title="Hairline grid monogram" data-studio="Studio Marrow" data-sub="studio.marrow · Rotterdam" data-price="27.4" data-move="-1.8" data-vol="301" data-p0="0.312" data-p1="0.274" data-seed="2.4" data-note="A hairline grid monogram drawn on an 8px module. Strongest at small sizes and in dense product chrome; weakest at large format where the hairlines disappear.">
+          <td class="rk">02</td>
+          <td><div class="ttl">Studio Marrow</div><div class="mark">Hairline grid monogram</div></td>
+          <td class="sub hide-s">studio.marrow · Rotterdam</td>
+          <td class="num pr">27.4%</td>
+          <td class="num mono dn">−1.8</td>
+          <td class="num mono hide-s" style="color:var(--dim)">$301K</td>
+          <td><div class="bar"><i style="width:27.4%"></i></div></td>
+        </tr>
+        <tr class="pick" tabindex="0" data-id="03" data-title="Extended grotesk wordmark" data-studio="Kessler &amp; Frame" data-sub="kessler.frame · Berlin" data-price="12.9" data-move="0.7" data-vol="186" data-p0="0.108" data-p1="0.129" data-seed="0.7" data-note="An extended grotesk wordmark with a tightened tracking ramp. Type only, no symbol — cheap to deploy, hard to use as an app icon.">
+          <td class="rk">03</td>
+          <td><div class="ttl">Kessler &amp; Frame</div><div class="mark">Extended grotesk wordmark</div></td>
+          <td class="sub hide-s">kessler.frame · Berlin</td>
+          <td class="num pr">12.9%</td>
+          <td class="num mono up">+0.7</td>
+          <td class="num mono hide-s" style="color:var(--dim)">$186K</td>
+          <td><div class="bar"><i style="width:12.9%"></i></div></td>
+        </tr>
+        <tr class="pick" tabindex="0" data-id="04" data-title="Signal waveform mark" data-studio="Nima Okonjo" data-sub="n.okonjo · Lagos" data-price="7.1" data-move="-2.4" data-vol="143" data-p0="0.121" data-p1="0.071" data-seed="3.1" data-note="A waveform mark derived from the settlement cadence. The most distinctive of the six, and the hardest to reduce below 20px without losing its shape.">
+          <td class="rk">04</td>
+          <td><div class="ttl">Nima Okonjo</div><div class="mark">Signal waveform mark</div></td>
+          <td class="sub hide-s">n.okonjo · Lagos</td>
+          <td class="num pr">7.1%</td>
+          <td class="num mono dn">−2.4</td>
+          <td class="num mono hide-s" style="color:var(--dim)">$143K</td>
+          <td><div class="bar"><i style="width:7.1%"></i></div></td>
+        </tr>
+        <tr class="pick" tabindex="0" data-id="05" data-title="Modular hexagon system" data-studio="Studio Halcyon" data-sub="halcyon.studio · Seoul" data-price="4.2" data-move="0.3" data-vol="98" data-p0="0.033" data-p1="0.042" data-seed="1.9" data-note="A modular hexagon system built for product surfaces rather than print. The most extensible package, the least memorable single mark.">
+          <td class="rk">05</td>
+          <td><div class="ttl">Studio Halcyon</div><div class="mark">Modular hexagon system</div></td>
+          <td class="sub hide-s">halcyon.studio · Seoul</td>
+          <td class="num pr">4.2%</td>
+          <td class="num mono up">+0.3</td>
+          <td class="num mono hide-s" style="color:var(--dim)">$98K</td>
+          <td><div class="bar"><i style="width:4.2%"></i></div></td>
+        </tr>
+        <tr class="pick" tabindex="0" data-id="06" data-title="Typographic seal" data-studio="Common Form" data-sub="common.form · Mexico City" data-price="2.1" data-move="-3.0" data-vol="94" data-p0="0.098" data-p1="0.021" data-seed="2.8" data-note="A typographic seal with a letterpress reference. Highest craft score in the panel's blind pass, lowest recall — and the book has given up on it this week.">
+          <td class="rk">06</td>
+          <td><div class="ttl">Common Form</div><div class="mark">Typographic seal</div></td>
+          <td class="sub hide-s">common.form · Mexico City</td>
+          <td class="num pr">2.1%</td>
+          <td class="num mono dn">−3.0</td>
+          <td class="num mono hide-s" style="color:var(--dim)">$94K</td>
+          <td><div class="bar"><i style="width:2.1%"></i></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small dim" style="margin:14px 0 0;max-width:82ch">Prices sum to 100.0%: six exhaustive outcomes, no “none of the above”. Select a row to inspect the book. Volume is 30-day traded notional, not open interest.</p>
+</section>
+
+<section style="border-bottom:0">
+  <div class="split">
+    <div class="card detail">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div>
+          <div class="k mono" id="dId">Submission 01</div>
+          <h3 style="font-size:22px;letter-spacing:-.02em;margin:10px 0 4px" id="dStudio">Atelier Voss</h3>
+          <div class="mono small dim" id="dSub">atelier.voss · Lisbon</div>
+        </div>
+        <span class="tag live" id="dTag">Favourite</span>
+      </div>
+
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-top:22px">
+        <div>
+          <div class="big" id="dPrice">46.3<small>%</small></div>
+          <div class="mono small" id="dMove" style="color:var(--good);margin-top:8px">+6.2 pts · 24h</div>
+          <div class="mono small dim" id="dCents" style="margin-top:4px">46.3¢ per share</div>
+        </div>
+        <div style="text-align:right">
+          <div class="k">30d volume</div>
+          <div class="mono" style="font-size:17px;margin-top:6px" id="dVol">$418K</div>
+        </div>
+      </div>
+
+      <div class="mono" style="display:flex;justify-content:space-between;font-size:10px;color:var(--dimmer);letter-spacing:.1em;margin-top:20px">
+        <span>PRICE HISTORY</span><span>7 DAYS</span>
+      </div>
+      <svg viewBox="0 0 260 64" preserveAspectRatio="none" style="display:block;width:100%;height:78px;margin:6px 0 0" role="img" aria-label="Price history for the selected submission">
+        <defs>
+          <linearGradient id="fillDesign" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#c8ff3c" stop-opacity=".22"/>
+            <stop offset="1" stop-color="#c8ff3c" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path id="sparkArea" d="" fill="url(#fillDesign)"/>
+        <polyline id="sparkLine" points="" fill="none" stroke="#c8ff3c" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        <circle id="sparkDot" cx="255" cy="5" r="2.6" fill="#c8ff3c"/>
+      </svg>
+      <div class="mono" style="display:flex;justify-content:space-between;font-size:10px;color:var(--dimmer);letter-spacing:.1em;margin-top:4px">
+        <span>7D AGO</span><span id="dSpan">+24.9 PTS</span><span>NOW</span>
+      </div>
+
+      <div class="hr"></div>
+      <p class="small" id="dNote" style="margin:0;max-width:56ch">A single-weight ledger mark with the bolt split across the counter of the S. Ships as SVG, a 16px favicon and a one-colour stamp for physical collateral.</p>
+    </div>
+
+    <aside class="card panel">
+      <div class="eyebrow" style="font-size:10px">Order panel</div>
+      <h2 style="font-size:22px;margin:8px 0 4px">Back this design</h2>
+      <p class="small dim" style="margin-bottom:18px">Buy shares at the current mark. Each share pays <span class="mono" style="color:var(--ink)">$1.00</span> if selected, <span class="mono">$0.00</span> if not.</p>
+
+      <label for="shares">Shares</label>
+      <div class="amt">
+        <input id="shares" type="number" value="4200" min="1" max="50000" step="100" inputmode="numeric" aria-describedby="calcNote">
+        <span>SHARES</span>
+      </div>
+      <div class="quick">
+        <button type="button" data-shares="1000">1,000</button>
+        <button type="button" data-shares="5000">5,000</button>
+        <button type="button" data-shares="10000">10,000</button>
+        <button type="button" data-shares="25000">25,000</button>
+      </div>
+
+      <div class="hr" style="margin:18px 0"></div>
+
+      <div class="rows">
+        <div><span>Price per share</span><b id="oPrice">46.3¢</b></div>
+        <div><span>Cost, before fee</span><b id="oCost">$1,944.60</b></div>
+        <div><span>Protocol fee · 1.0%</span><b id="oFee">$19.45</b></div>
+        <div class="tot"><span>Total debit</span><b id="oTotal">$1,964.05</b></div>
+        <div><span>Max payout if selected</span><b id="oPayout">$4,200.00</b></div>
+        <div><span>Profit if selected</span><b id="oProfit" style="color:var(--good)">+$2,235.95</b></div>
+        <div><span>Loss if not selected</span><b id="oLoss" style="color:var(--warn)">−$1,964.05</b></div>
+      </div>
+
+      <button class="btn primary orders" id="place" type="button">Place simulated order</button>
+      <div class="status small mono dim" id="calcNote">Local calculation only — nothing leaves this page.</div>
+    </aside>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">Seer — the protocol beneath the applications · <a href="index.html">overview</a> · simulation interface, no funds at risk</footer>
+
+</div>
+
+<script>
+(function(){
+  var rows = Array.prototype.slice.call(document.querySelectorAll('tr.pick'));
+  var el = function(id){ return document.getElementById(id); };
+  var price = 0.463;
+  var sharesEl = el('shares');
+
+  function money(n){ return '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function signed(n){ return (n >= 0 ? '+' : '\u2212') + money(Math.abs(n)); }
+
+  function series(p0, p1, seed){
+    var n = 29, out = [], i, t, v, lo = 9, hi = -9;
+    for(i = 0; i < n; i++){
+      t = i / (n - 1);
+      v = p0 + (p1 - p0) * t + 0.011 * Math.sin(i * 1.85 + seed) + 0.006 * Math.sin(i * 3.6 + seed * 1.7);
+      if(i === 0){ v = p0; }
+      if(i === n - 1){ v = p1; }
+      out.push(v);
+      if(v < lo){ lo = v; }
+      if(v > hi){ hi = v; }
+    }
+    var pts = [], pad = 5, w = 260, h = 64;
+    for(i = 0; i < n; i++){
+      pts.push([
+        pad + i * (w - 2 * pad) / (n - 1),
+        h - pad - (out[i] - lo) / ((hi - lo) || 1) * (h - 2 * pad)
+      ]);
+    }
+    return pts;
+  }
+
+  function paint(p0, p1, seed){
+    var pts = series(p0, p1, seed);
+    var str = pts.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+    el('sparkLine').setAttribute('points', str);
+    el('sparkArea').setAttribute('d', 'M' + pts.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' L') + ' L255,64 L5,64 Z');
+    var last = pts[pts.length - 1];
+    el('sparkDot').setAttribute('cx', last[0].toFixed(1));
+    el('sparkDot').setAttribute('cy', last[1].toFixed(1));
+  }
+
+  function calc(){
+    var s = parseInt(sharesEl.value, 10);
+    if(isNaN(s) || s < 1){ s = 1; }
+    if(s > 50000){ s = 50000; }
+    var cost = s * price;
+    var fee = cost * 0.01;
+    var total = cost + fee;
+    var payout = s;
+    el('oCost').textContent = money(cost);
+    el('oFee').textContent = money(fee);
+    el('oTotal').textContent = money(total);
+    el('oPayout').textContent = money(payout);
+    el('oProfit').textContent = signed(payout - total);
+    el('oLoss').textContent = '\u2212' + money(total);
+    return { shares: s, total: total };
+  }
+
+  function select(row){
+    rows.forEach(function(r){ r.classList.remove('on'); });
+    row.classList.add('on');
+
+    var d = row.dataset;
+    var p = parseFloat(d.price) / 100;
+    var p0 = parseFloat(d.p0);
+    var p1 = parseFloat(d.p1);
+    var mv = parseFloat(d.move);
+
+    el('dId').textContent = 'Submission ' + d.id;
+    el('dStudio').innerHTML = d.studio;
+    el('dSub').textContent = d.sub;
+    el('dPrice').innerHTML = d.price + '<small>%</small>';
+    el('dCents').textContent = d.price + '\u00A2 per share';
+    el('dMove').textContent = (mv >= 0 ? '+' : '\u2212') + Math.abs(mv).toFixed(1) + ' pts · 24h';
+    el('dMove').style.color = mv >= 0 ? 'var(--good)' : 'var(--warn)';
+    el('dVol').textContent = '$' + d.vol + 'K';
+    el('dNote').textContent = d.note;
+    el('dSpan').textContent = (p1 >= p0 ? '+' : '\u2212') + Math.abs((p1 - p0) * 100).toFixed(1) + ' PTS';
+
+    var rank = rows.indexOf(row);
+    var tag = el('dTag');
+    if(rank === 0){ tag.textContent = 'Favourite'; tag.className = 'tag live'; }
+    else if(rank === rows.length - 1){ tag.textContent = 'Longest odds'; tag.className = 'tag'; }
+    else { tag.textContent = 'Challenger'; tag.className = 'tag soon'; }
+
+    price = p;
+    el('oPrice').textContent = (p * 100).toFixed(1) + '\u00A2';
+    paint(p0, p1, parseFloat(d.seed));
+    calc();
+  }
+
+  rows.forEach(function(row){
+    row.addEventListener('click', function(){ select(row); });
+    row.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(row); }
+    });
+  });
+
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.quick button'));
+  function clearChips(){ chips.forEach(function(c){ c.classList.remove('on'); }); }
+
+  chips.forEach(function(b){
+    b.addEventListener('click', function(){
+      sharesEl.value = b.dataset.shares;
+      clearChips();
+      b.classList.add('on');
+      calc();
+    });
+  });
+
+  sharesEl.addEventListener('input', function(){ clearChips(); calc(); });
+
+  el('place').addEventListener('click', function(){
+    var r = calc();
+    var name = el('dStudio').textContent;
+    el('calcNote').innerHTML = 'Simulated: ' + r.shares.toLocaleString('en-US') + ' shares of ' + name +
+      ' at ' + (price * 100).toFixed(1) + '\u00A2, ' + money(r.total) + ' debited. Nothing was sent.';
+  });
+
+  paint(0.214, 0.463, 1.2);
+  calc();
+})();
+</script>
+</body>
+</html>
