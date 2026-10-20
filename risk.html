@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soundings — risk pricing · Seer</title>
+<meta name="description" content="Soundings compares market-implied loss-given-default across ten DeFi protocols, weighted by executable book depth.">
+<link rel="stylesheet" href="assets/ef.css">
+<style>
+  .up{color:var(--good)}
+  .dn{color:var(--warn)}
+  .hero .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+  .hero-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.9fr);gap:clamp(22px,4vw,56px);align-items:start;margin-top:20px}
+  .hero-grid .lede{margin:0;max-width:56ch}
+  .snap{padding:16px 18px}
+  .snap .k{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer)}
+  .snap .stat{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:12px}
+  .snap .stat:last-child{border-bottom:0;padding-bottom:0}
+  .snap .stat span:first-child{color:var(--dim)}
+  .snap .stat span:last-child{color:var(--ink)}
+  .snap .meter{margin-top:12px;display:flex;align-items:center;gap:10px}
+  .snap .meter .bar{flex:1}
+  .snap .meter em{font-family:var(--mono);font-style:normal;font-size:10px;color:var(--dimmer);letter-spacing:.08em}
+  .sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:18px}
+  .sechead p{margin:0}
+  .board-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);
+    background:linear-gradient(180deg,var(--panel-2),var(--panel))}
+  .board-wrap table{min-width:800px}
+  .board-wrap th:first-child,.board-wrap td:first-child{padding-left:20px}
+  .board-wrap th:last-child,.board-wrap td:last-child{padding-right:20px}
+  .board-wrap tr:last-child td{border-bottom:0}
+  .board-wrap th{white-space:nowrap}
+  .proto b{display:block;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+  .proto span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .dcell{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+  .dcell .bar{width:86px}
+  .dcell em{font-family:var(--mono);font-style:normal;font-size:12px;color:var(--dim);min-width:20px;text-align:right}
+  .tag.high{color:var(--good);border-color:rgba(94,242,160,.35)}
+  .tag.med{color:var(--elec);border-color:rgba(53,224,255,.3)}
+  .tag.low{color:var(--warn);border-color:rgba(255,122,77,.32)}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);margin-top:16px}
+  .legend i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:7px}
+  .cmp-card{padding:20px}
+  .cmp-card .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+  .cmp-card h3{margin:0;font-size:13.5px;letter-spacing:.02em}
+  .cmp-card svg{width:100%;height:136px;display:block;margin:4px 0 12px}
+  .cmp-card p{margin:0;font-size:12.5px;color:var(--dim);line-height:1.6}
+  .chart{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:16px 16px 10px}
+  .chart svg{width:100%;height:auto;display:block}
+  .chart .legend{margin-top:6px}
+  .stats .stat{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:12.5px}
+  .stats .stat:first-child{padding-top:0}
+  .stats .stat span:first-child{color:var(--dimmer);letter-spacing:.04em}
+  .stats .stat span:last-child{color:var(--ink)}
+  .caveat{border:1px solid rgba(255,122,77,.28);border-radius:var(--r);padding:22px 24px;
+    background:linear-gradient(180deg,rgba(255,122,77,.055),transparent 80%)}
+  .caveat h3{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--warn);margin-bottom:12px}
+  .caveat ul{margin:0;padding-left:17px;color:#c3cedb;font-size:13.5px}
+  .caveat li{margin-bottom:9px}
+  .caveat li:last-child{margin-bottom:0}
+  .caveat li b{color:var(--ink);font-weight:600}
+  .met{margin-top:14px;font-family:var(--mono);font-size:11px;line-height:1.75;color:var(--dimmer);letter-spacing:.02em}
+  .met b{color:var(--dim);font-weight:400}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr}}
+  @media(max-width:620px){.dcell .bar{width:54px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a class="brand" href="index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="#c8ff3c"/></svg>
+    <b>Seer</b><span>electric foundation</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html">Overview</a>
+    <a href="app.html">Explorer</a>
+    <a href="deep.html">Deep</a>
+    <a href="futarchy.html">Futarchy</a>
+    <a href="opportunity.html">Opportunity</a>
+    <a href="risk.html" aria-current="page">Risk</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">06 — risk pricing · soundings</div>
+  <h1>Soundings — depth, <em>measured</em><br>before you cross</h1>
+
+  <div class="hero-grid">
+    <p class="lede">A single market gives you one number: the price of a yes. Soundings treats risk as terrain instead. It samples market-implied default probability across ten protocols, fits each to a curve of executable quotes at seven size bands, and returns a loss-given-default figure you can put beside another protocol's — at the size you would actually take, not at the size the headline quote assumes.</p>
+
+    <div class="card snap">
+      <div class="k">board snapshot · 14:00 utc</div>
+      <div class="stat"><span>median lgd</span><span>4,650 bps</span></div>
+      <div class="stat"><span>median depth</span><span>70 / 100</span></div>
+      <div class="stat"><span>widest 30d move</span><span style="color:var(--warn)">+1.8 · maple</span></div>
+      <div class="stat"><span>deepest book</span><span style="color:var(--volt)">92 · aave v3</span></div>
+      <div class="meter"><div class="bar"><i style="width:70%"></i></div><em>grid, 10/10</em></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <span class="pill"><span class="dot"></span>survey 20 oct 2026 · 14:00 utc</span>
+    <span class="pill">10 protocols · 7 size bands</span>
+    <span class="pill">model v0.4 · simulation</span>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <div>
+      <h2>The board</h2>
+      <p class="small dim">One survey window, one ordering. Sorted by depth, descending — thin books sit at the bottom where they belong.</p>
+    </div>
+    <span class="pill">30d delta · negative = repricing lower</span>
+  </div>
+
+  <div class="board-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Protocol</th>
+          <th class="num">Modelled LGD <span style="color:var(--dimmer)">bps</span></th>
+          <th class="num">Market-implied PD <span style="color:var(--dimmer)">%</span></th>
+          <th class="num">30d Δ</th>
+          <th style="text-align:right">Depth score <span style="color:var(--dimmer)">/100</span></th>
+          <th style="text-align:right">Confidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="proto"><b>Aave v3</b><span>ethereum · lending</span></td>
+          <td class="num">4,200</td>
+          <td class="num">3.10</td>
+          <td class="num up">-0.4</td>
+          <td><div class="dcell"><div class="bar"><i style="width:92%"></i></div><em>92</em></div></td>
+          <td style="text-align:right"><span class="tag high">high</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Uniswap v3</b><span>multichain · amm</span></td>
+          <td class="num">2,100</td>
+          <td class="num">6.80</td>
+          <td class="num dn">+0.3</td>
+          <td><div class="dcell"><div class="bar"><i style="width:88%"></i></div><em>88</em></div></td>
+          <td style="text-align:right"><span class="tag high">high</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Pendle</b><span>ethereum · yield trading</span></td>
+          <td class="num">3,400</td>
+          <td class="num">4.60</td>
+          <td class="num up">-0.2</td>
+          <td><div class="dcell"><div class="bar"><i style="width:78%"></i></div><em>78</em></div></td>
+          <td style="text-align:right"><span class="tag high">high</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Lido</b><span>ethereum · liquid staking</span></td>
+          <td class="num">3,700</td>
+          <td class="num">2.20</td>
+          <td class="num dn">+0.1</td>
+          <td><div class="dcell"><div class="bar"><i style="width:74%"></i></div><em>74</em></div></td>
+          <td style="text-align:right"><span class="tag high">high</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Morpho Blue</b><span>ethereum · isolated lending</span></td>
+          <td class="num">5,600</td>
+          <td class="num">2.40</td>
+          <td class="num dn">+0.6</td>
+          <td><div class="dcell"><div class="bar"><i style="width:71%"></i></div><em>71</em></div></td>
+          <td style="text-align:right"><span class="tag med">medium</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Spark</b><span>ethereum · lending</span></td>
+          <td class="num">4,400</td>
+          <td class="num">3.30</td>
+          <td class="num up">-0.3</td>
+          <td><div class="dcell"><div class="bar"><i style="width:69%"></i></div><em>69</em></div></td>
+          <td style="text-align:right"><span class="tag med">medium</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Curve crvUSD</b><span>multichain · cdp</span></td>
+          <td class="num">4,900</td>
+          <td class="num">3.90</td>
+          <td class="num up">-0.7</td>
+          <td><div class="dcell"><div class="bar"><i style="width:66%"></i></div><em>66</em></div></td>
+          <td style="text-align:right"><span class="tag med">medium</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Ethena</b><span>ethereum · basis carry</span></td>
+          <td class="num">7,800</td>
+          <td class="num">1.90</td>
+          <td class="num dn">+1.2</td>
+          <td><div class="dcell"><div class="bar"><i style="width:64%"></i></div><em>64</em></div></td>
+          <td style="text-align:right"><span class="tag med">medium</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Euler v2</b><span>ethereum · lending</span></td>
+          <td class="num">5,200</td>
+          <td class="num">4.10</td>
+          <td class="num dn">+0.9</td>
+          <td><div class="dcell"><div class="bar"><i style="width:47%"></i></div><em>47</em></div></td>
+          <td style="text-align:right"><span class="tag low">low</span></td>
+        </tr>
+        <tr>
+          <td class="proto"><b>Maple</b><span>ethereum · credit</span></td>
+          <td class="num">6,900</td>
+          <td class="num">5.40</td>
+          <td class="num dn">+1.8</td>
+          <td><div class="dcell"><div class="bar"><i style="width:41%"></i></div><em>41</em></div></td>
+          <td style="text-align:right"><span class="tag low">low</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:var(--good)"></i>high — ≥60 quotes, ≥5 venues, drift &lt; 8%</span>
+    <span><i style="background:var(--elec)"></i>medium — 25–59 quotes</span>
+    <span><i style="background:var(--warn)"></i>low — bespoke, &lt; 25 quotes</span>
+  </div>
+
+  <p class="met">
+    <b>expected loss</b> = PD × LGD. Aave v3 → 3.10% × 4,200 bps = <b>130 bps</b>. Across the board the range runs 81 bps (Lido) to 373 bps (Maple):
+    identical headlines, very different severity once a default lands. LGD is modelled, not observed — see the methodology note below.
+  </p>
+</section>
+
+<section>
+  <div class="sechead">
+    <div>
+      <h2>One price, or a surface</h2>
+      <p class="small dim">The difference is not precision. It is whether size changes the answer.</p>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card cmp-card">
+      <div class="hd">
+        <h3>Single market</h3>
+        <span class="tag">binary</span>
+      </div>
+      <svg viewBox="0 0 340 136" role="img" aria-label="A single flat probability line with no depth information">
+        <g stroke="rgba(140,170,200,.12)" stroke-width="1">
+          <line x1="0" y1="24" x2="340" y2="24"/>
+          <line x1="0" y1="68" x2="340" y2="68"/>
+          <line x1="0" y1="112" x2="340" y2="112"/>
+        </g>
+        <polyline points="0,86 42,86 84,86 126,86 168,86 210,86 252,86 294,86 340,86"
+                  fill="none" stroke="#7f8d9c" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <circle cx="168" cy="86" r="5" fill="rgba(233,241,248,.14)"/>
+        <circle cx="168" cy="86" r="3" fill="#e9f1f8"/>
+        <text x="168" y="72" fill="#c3cedb" font-family="monospace" font-size="8" text-anchor="middle">YES · 0.031</text>
+        <text x="0" y="132" fill="#6e7b89" font-family="monospace" font-size="7">1M</text>
+        <text x="340" y="132" fill="#6e7b89" font-family="monospace" font-size="7" text-anchor="end">50M</text>
+      </svg>
+      <p>One quote, one size, no shape. Ask what happens at 10× and the market has nothing to say — the number does not move because there is no second observation to move it to.</p>
+    </div>
+
+    <div class="card cmp-card">
+      <div class="hd">
+        <h3>The grid</h3>
+        <span class="tag live">surveyed</span>
+      </div>
+      <svg viewBox="0 0 340 136" role="img" aria-label="Three contours showing premium rising with notional size">
+        <defs>
+          <linearGradient id="cmpg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#35e0ff" stop-opacity=".22"/>
+            <stop offset="1" stop-color="#35e0ff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <g stroke="rgba(140,170,200,.12)" stroke-width="1">
+          <line x1="0" y1="24" x2="340" y2="24"/>
+          <line x1="0" y1="68" x2="340" y2="68"/>
+          <line x1="0" y1="112" x2="340" y2="112"/>
+        </g>
+        <path d="M0,96 L48,86 L96,80 L144,70 L192,56 L240,44 L288,30 L340,18 L340,136 L0,136 Z" fill="url(#cmpg)"/>
+        <polyline points="0,96 48,86 96,80 144,70 192,56 240,44 288,30 340,18" fill="none" stroke="#c8ff3c" stroke-width="1.8"/>
+        <polyline points="0,108 48,100 96,94 144,84 192,70 240,56 288,40 340,26" fill="none" stroke="#35e0ff" stroke-width="1.1" opacity=".75"/>
+        <polyline points="0,118 48,112 96,106 144,96 192,82 240,66 288,50 340,34" fill="none" stroke="#8fa0b4" stroke-width="1" opacity=".45" stroke-dasharray="3 3"/>
+        <circle cx="192" cy="56" r="3.5" fill="#c8ff3c"/>
+        <line x1="192" y1="56" x2="192" y2="136" stroke="rgba(200,255,60,.4)" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="0" y="132" fill="#6e7b89" font-family="monospace" font-size="7">1M</text>
+        <text x="340" y="132" fill="#6e7b89" font-family="monospace" font-size="7" text-anchor="end">50M</text>
+      </svg>
+      <p>Seven size bands, three probability contours. The vertical gap between contours is skew — the price of being wrong at size, which a single yes/no market quietly refuses to quote.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <div>
+      <h2>Aave v3 — reference case</h2>
+      <p class="small dim">The deepest book on the board, and the one where the curves disagree least.</p>
+    </div>
+    <span class="pill">ethereum · lending</span>
+  </div>
+
+  <div class="split">
+    <div class="chart">
+      <svg viewBox="0 0 760 340" role="img" aria-label="Premium in basis points over 30 days against notional size, with contours at three implied default-probability bands and the expected-loss floor">
+        <defs>
+          <linearGradient id="depthg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#35e0ff" stop-opacity=".14"/>
+            <stop offset="1" stop-color="#35e0ff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <g stroke="rgba(140,170,200,.10)" stroke-width="1">
+          <line x1="56" y1="24" x2="736" y2="24"/>
+          <line x1="56" y1="88" x2="736" y2="88"/>
+          <line x1="56" y1="152" x2="736" y2="152"/>
+          <line x1="56" y1="216" x2="736" y2="216"/>
+          <line x1="56" y1="280" x2="736" y2="280"/>
+          <line x1="56" y1="24" x2="56" y2="280"/>
+          <line x1="192" y1="24" x2="192" y2="280"/>
+          <line x1="328" y1="24" x2="328" y2="280"/>
+          <line x1="464" y1="24" x2="464" y2="280"/>
+          <line x1="600" y1="24" x2="600" y2="280"/>
+          <line x1="736" y1="24" x2="736" y2="280"/>
+        </g>
+
+        <path d="M56,176 L124,173 L192,170 L328,156 L464,128 L600,108 L736,83 L736,280 L56,280 Z" fill="url(#depthg)"/>
+
+        <line x1="56" y1="176" x2="736" y2="176" stroke="rgba(255,122,77,.45)" stroke-width="1" stroke-dasharray="5 4"/>
+        <text x="730" y="190" fill="#ff9d78" font-family="monospace" font-size="8" text-anchor="end" letter-spacing="1">EXPECTED LOSS · 130 BPS</text>
+
+        <polyline points="56,230 124,226 192,224 328,210 464,182 600,162 736,137"
+                  fill="none" stroke="#8fa0b4" stroke-width="1" opacity=".55" stroke-dasharray="4 3"/>
+        <polyline points="56,176 124,173 192,170 328,156 464,128 600,108 736,83"
+                  fill="none" stroke="#c8ff3c" stroke-width="2"/>
+        <polyline points="56,129 124,126 192,123 328,109 464,81 600,61 736,36"
+                  fill="none" stroke="#35e0ff" stroke-width="1.3" opacity=".7"/>
+
+        <g fill="#c8ff3c">
+          <circle cx="56" cy="176" r="2"/><circle cx="124" cy="173" r="2"/><circle cx="192" cy="170" r="2"/>
+          <circle cx="328" cy="156" r="2"/><circle cx="464" cy="128" r="2"/><circle cx="600" cy="108" r="2"/>
+          <circle cx="736" cy="83" r="2"/>
+        </g>
+
+        <g fill="#6e7b89" font-family="monospace" font-size="9">
+          <text x="48" y="283" text-anchor="end">0</text>
+          <text x="48" y="219" text-anchor="end">80</text>
+          <text x="48" y="155" text-anchor="end">160</text>
+          <text x="48" y="91" text-anchor="end">240</text>
+          <text x="48" y="27" text-anchor="end">320</text>
+          <text x="56" y="298">0</text>
+          <text x="192" y="298" text-anchor="middle">10</text>
+          <text x="328" y="298" text-anchor="middle">20</text>
+          <text x="464" y="298" text-anchor="middle">30</text>
+          <text x="600" y="298" text-anchor="middle">40</text>
+          <text x="736" y="298" text-anchor="end">50</text>
+        </g>
+        <text x="56" y="16" fill="#6e7b89" font-family="monospace" font-size="8" letter-spacing="1.4">PREMIUM · BPS / 30D</text>
+        <text x="736" y="318" fill="#6e7b89" font-family="monospace" font-size="8" text-anchor="end" letter-spacing="1.4">NOTIONAL · $M</text>
+
+        <g font-family="monospace" font-size="8" fill="#8fa0b4">
+          <text x="64" y="222">pd 1.5%</text>
+          <text x="64" y="166">pd 3.1%</text>
+          <text x="64" y="119">pd 4.5%</text>
+        </g>
+
+        <line x1="192" y1="170" x2="192" y2="280" stroke="rgba(200,255,60,.45)" stroke-width="1" stroke-dasharray="3 3"/>
+        <circle cx="192" cy="170" r="3.8" fill="#c8ff3c"/>
+        <circle cx="192" cy="170" r="8.5" fill="none" stroke="rgba(200,255,60,.32)" stroke-width="1"/>
+        <line x1="197" y1="166" x2="208" y2="152" stroke="rgba(233,241,248,.3)" stroke-width="1"/>
+        <rect x="208" y="137" width="106" height="16" fill="#0b0f15" opacity=".9" rx="3"/>
+        <text x="214" y="148" fill="#e9f1f8" font-family="monospace" font-size="9">10M · 137 bps</text>
+      </svg>
+      <div class="legend">
+        <span><i style="background:var(--volt)"></i>pd 3.1% — reference</span>
+        <span><i style="background:var(--elec)"></i>pd 4.5%</span>
+        <span><i style="background:#8fa0b4"></i>pd 1.5%</span>
+        <span><i style="background:var(--warn)"></i>expected loss</span>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span>modelled lgd</span><span>4,200 bps</span></div>
+      <div class="stat"><span>market-implied pd</span><span>3.10%</span></div>
+      <div class="stat"><span>expected loss</span><span>130 bps</span></div>
+      <div class="stat"><span>premium @ 10M</span><span>137 bps</span></div>
+      <div class="stat"><span>premium @ 50M</span><span>246 bps</span></div>
+      <div class="stat"><span>skew, 10M → 50M</span><span>+109 bps</span></div>
+      <div class="stat"><span>book absorb</span><span>41M</span></div>
+      <div class="stat"><span>depth score</span><span>92 / 100</span></div>
+
+      <div class="met">
+        <b>read:</b> at 10M the book quotes just above expected loss — 137 against 130 — which is what a liquid market looks like when it broadly agrees with the model.
+        By 50M the same book wants 246 bps. That 109 bps gap is the honest cost of size, and it is invisible on a single-price venue.
+      </div>
+    </div>
+  </div>
+
+  <p class="met" style="margin-top:22px;border-top:1px solid var(--line);padding-top:16px">
+    <b>methodology.</b> Curves are linear fits over executable quotes sampled at seven size bands (0.5, 2, 5, 10, 20, 35, 50 $M),
+    reweighted by realised fill ratio so that quotes nobody could actually hit contribute less. Contours mark premium at fixed
+    default-probability bands. LGD is backed out as expected loss ÷ PD — 130 ÷ 3.1% = 4,194, rounded to 4,200 — then cross-checked
+    against the median implied LGD across bands. Confidence tags on the board above track quote count, venue count and 7-day drift,
+    not credit quality. Survey window 20 Oct 2026, 14:00 UTC. Model v0.4.
+  </p>
+</section>
+
+<section style="padding-top:clamp(26px,3vw,40px)">
+  <div class="caveat">
+    <h3>What this is not</h3>
+    <ul>
+      <li><b>Not insurance.</b> Nothing on this page transfers risk. There is no counterparty to you, no policy, no claim, no payout — only a reading of what other people's quotes imply.</li>
+      <li><b>Not a promise of safety.</b> A depth score of 92 says the book is deep, not that the protocol is sound. Deep books have been wrong before, together, on the same day.</li>
+      <li><b>Not advice, and not a forecast.</b> Market-implied probability is a price, and prices can be wrong for a quarter at a time. The model is fitted to quotes that were live at 14:00 UTC; it knows nothing after that.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">Seer — the protocol beneath the applications · <a href="index.html">overview</a> · simulation interface, no funds at risk</footer>
+
+</div>
+</body>
+</html>
