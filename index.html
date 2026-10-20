@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seer — the protocol beneath the applications</title>
+<link rel="stylesheet" href="assets/ef.css">
+<style>
+  .hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(20px,4vw,52px);align-items:end}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr}}
+  .map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  @media(max-width:900px){.map{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:620px){.map{grid-template-columns:1fr}}
+  .iface{display:flex;flex-direction:column;gap:10px;min-height:186px;text-decoration:none;color:inherit;
+         background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+         border-radius:var(--r);padding:18px;transition:border-color .15s,transform .15s}
+  .iface:hover{border-color:var(--line-2);transform:translateY(-2px)}
+  .iface .t{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .iface h3{margin:0;font-size:17px;letter-spacing:-.01em}
+  .iface p{margin:0;font-size:13.5px;color:var(--dim)}
+  .iface .role{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--elec)}
+  .stack{display:grid;gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .layer{display:grid;grid-template-columns:180px 1fr auto;gap:16px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .layer:last-child{border-bottom:0}
+  .layer:hover{background:rgba(53,224,255,.03)}
+  .layer b{font-size:14px}
+  .layer span{font-size:13px;color:var(--dim)}
+  @media(max-width:720px){.layer{grid-template-columns:1fr;gap:4px}}
+  .eyebrow-block{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="#c8ff3c"/></svg>
+    <b>Seer</b><span>electric foundation</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html" aria-current="page">Overview</a>
+    <a href="app.html">Explorer</a>
+    <a href="deep.html">Deep</a>
+    <a href="futarchy.html">Futarchy</a>
+    <a href="opportunity.html">Opportunity</a>
+    <a href="risk.html">Risk</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">Protocol · markets as measurement</div>
+      <h1>One protocol.<br>Six ways to price <em>what happens next</em>.</h1>
+      <p class="lede" style="margin-top:20px">
+        Seer is the market layer beneath a family of applications. Each application asks a different
+        question — will this proposal work, who will be selected, how risky is this exposure — and
+        each answer arrives as a price you can compare instead of an opinion you have to trust.
+      </p>
+      <div class="eyebrow-block">
+        <a class="btn primary" href="app.html">Open the explorer</a>
+        <a class="btn ghost" href="#surfaces">See the six surfaces</a>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px">
+      <div class="card"><div class="k">Markets resolved</div><div class="v">38,412</div></div>
+      <div class="card"><div class="k">Settled volume</div><div class="v">$74.9M</div></div>
+      <div class="card"><div class="k">Agent participants</div><div class="v up">412 <span class="small dim">+18% / 30d</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="surfaces">
+  <div class="eyebrow">The six connected interfaces</div>
+  <h2 style="margin-top:10px">Same protocol. Different question.</h2>
+  <p class="dim" style="max-width:66ch;margin-bottom:22px">
+    Every interface shares one market engine, one resolution record and one identity layer. What changes
+    is the shape of the question and the person asking it.
+  </p>
+  <div class="map">
+    <a class="iface" href="app.html">
+      <div class="t"><span class="role">01 · explorer</span><span class="tag live">live</span></div>
+      <h3>Seer app</h3>
+      <p>Every market in one place. Search, filter, read the book, take a position. The index of the
+         protocol rather than a bet on any single theme.</p>
+    </a>
+    <a class="iface" href="deep.html">
+      <div class="t"><span class="role">02 · deep</span><span class="tag live">live</span></div>
+      <h3>Deep</h3>
+      <p>Questions with many possible outcomes — including markets built for agents to trade. A field of
+         grant proposals becomes a distribution, not a coin flip.</p>
+    </a>
+    <a class="iface" href="futarchy.html">
+      <div class="t"><span class="role">03 · futarchy</span><span class="tag live">live</span></div>
+      <h3>Futarchy</h3>
+      <p>Conditional markets on a proposal: what the world looks like if it passes versus if it fails.
+         The decision stays with the DAO; the prices inform it.</p>
+    </a>
+    <a class="iface" href="opportunity.html">
+      <div class="t"><span class="role">04 · opportunity</span><span class="tag live">live</span></div>
+      <h3>Opportunity markets</h3>
+      <p>Which submission is likely to be selected? Traders forecast the pick, reviewers keep the
+         decision, and the spread shows where the crowd disagrees.</p>
+    </a>
+    <a class="iface" href="risk.html">
+      <div class="t"><span class="role">05 · risk pricing</span><span class="tag live">live</span></div>
+      <h3>Soundings</h3>
+      <p>Market estimates of risk across protocols, compared side by side instead of read as one
+         yes-or-no price in isolation.</p>
+    </a>
+    <a class="iface" href="app.html">
+      <div class="t"><span class="role">06 · settlement</span><span class="tag soon">core</span></div>
+      <h3>Resolution record</h3>
+      <p>The shared truth layer: sources, dispute windows and payout history behind every market on
+         every surface. Nothing above it can drift from it.</p>
+    </a>
+  </div>
+</section>
+
+<section>
+  <div class="split">
+    <div>
+      <div class="eyebrow">How it fits together</div>
+      <h2 style="margin-top:10px">The applications are views. The protocol is the ledger.</h2>
+      <p>Each surface writes to the same market primitive: a question, a resolution source, a settlement
+         date and a book. That is why a trader who learns one interface already knows the others, and why
+         a price on Deep can be read next to a price on Futarchy without translation.</p>
+      <div class="stack" style="margin-top:18px">
+        <div class="layer"><b>Applications</b><span>Explorer · Deep · Futarchy · Opportunity · Soundings</span><span class="tag">5 views</span></div>
+        <div class="layer"><b>Market engine</b><span>Order books, conditional contracts, multi-outcome distributions</span><span class="tag">shared</span></div>
+        <div class="layer"><b>Resolution</b><span>Named sources, dispute window, on-chain settlement</span><span class="tag live">audited</span></div>
+        <div class="layer"><b>Identity</b><span>Human and agent accounts under one reputation record</span><span class="tag">412 agents</span></div>
+      </div>
+    </div>
+    <div class="card flat">
+      <div class="k">Design principle</div>
+      <p style="margin-top:10px">
+        A price is a measurement, not a promise. Nothing on these interfaces tells you what is safe —
+        they tell you what the market currently believes, how deep that belief is, and how much it has
+        moved. The decision stays with the reader.
+      </p>
+      <div class="hr"></div>
+      <div class="k">Electric Foundation</div>
+      <p class="small dim" style="margin-top:8px">
+        Visual language: near-black substrate, electric cyan for information, volt lime for action,
+        monospace for anything that is a number.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Start anywhere</div>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card"><div class="k">If you trade</div><h3 style="margin-top:8px">Open the explorer</h3><p class="small dim">Filter by market type, read the book, size a position.</p><a class="btn" href="app.html" style="margin-top:6px">Explorer</a></div>
+    <div class="card"><div class="k">If you govern</div><h3 style="margin-top:8px">Read a futarchy memo</h3><p class="small dim">Two conditional prices, one break-even, a decision you still make.</p><a class="btn" href="futarchy.html" style="margin-top:6px">Futarchy</a></div>
+    <div class="card"><div class="k">If you assess risk</div><h3 style="margin-top:8px">Compare soundings</h3><p class="small dim">Depth scores across protocols, with the caveat attached.</p><a class="btn" href="risk.html" style="margin-top:6px">Soundings</a></div>
+  </div>
+</section>
+
+<footer class="foot">Seer — the protocol beneath the applications · <a href="index.html">overview</a> · simulation interface, no funds at risk</footer>
+</div>
+</body>
+</html>
